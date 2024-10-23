@@ -7,12 +7,15 @@ WORKDIR /app
 
 COPY poetry.lock pyproject.toml /app/
 
+RUN apk add --no-cache postgresql-dev gcc python3-dev musl-dev #for psycopg2
+
 RUN pip install poetry
 
 RUN poetry install --no-root --no-dev
 
 COPY . /app/
 EXPOSE 8000
+
 RUN chmod +x script.sh
 
-CMD ["sh", "script.sh"]
+ENTRYPOINT ["sh", "script.sh"]
