@@ -6,6 +6,8 @@ services:
     build: .
     ports:
       - '8000:8000'
+    volumes:
+      - ./app:/user/src/app
     deploy:
       mode: replicated
       replicas: 1
@@ -45,8 +47,8 @@ services:
     ports:
       - '6380:6380'
     volumes:
-      - /path/to/local/dаta:/root/redis
-      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+      - ./redis-data/dаta:/root/redis
+      - ./redis-config/redis.conf:/usr/local/etc/redis/redis.conf
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD}
       - REDIS_PORT=${REDIS_PORT}
