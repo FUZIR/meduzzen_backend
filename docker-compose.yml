@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  django_backend:
+    container_name: 'django_backend'
+    build: .
+    ports:
+      - '8000:8000'
+    volumes:
+      - ./app:/user/src/app
+    deploy:
+      mode: replicated
+      replicas: 1
+    depends_on:
+      redis:
+        condition: service_healthy
+      quiz_db:
+        condition: service_healthy
+
+  quiz_db:
+    container_name: 'quiz_db'
+    image: 'postgres:14.0-alpine'
+    env_file:
+      - '.env'
+    ports:
+      - '5432:5432'
+    deploy:
+      mode: replicated
+      replicas: 1
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    healthcheck:
+      test: pg_isready -d ${POSTGRES_DB} -U ${POSTGRES_USER}
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - ./db-data/postgres/:/var/lib/postgresql/data/
+
+  redis:
+    image: redis:latest
+    env_file:
+      - '.env'
+    restart: always
+    ports:
+      - '6380:6380'
+    volumes:
+      - ./redis-data/dаta:/root/redis
+      - ./redis-config/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=${REDIS_PASSWORD}
+      - REDIS_PORT=${REDIS_PORT}
+      - REDIS_DATABASES=${REDIS_DATABASES}
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
