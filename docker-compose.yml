@@ -43,7 +43,6 @@ services:
     image: redis:latest
     env_file:
       - '.env'
-    restart: always
     ports:
       - '6380:6380'
     volumes:
