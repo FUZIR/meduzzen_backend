@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY poetry.lock pyproject.toml /app/
 
-RUN apk add --no-cache postgresql-dev gcc python3-dev musl-dev #for psycopg2
+RUN apk update && apk add --no-cache postgresql-dev gcc python3-dev musl-dev
 
 RUN pip install poetry
 
