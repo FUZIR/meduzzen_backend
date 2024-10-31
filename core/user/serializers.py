@@ -1,5 +1,7 @@
+import djoser.serializers
+from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
-from django.template.context_processors import request
+from djoser.serializers import UserFunctionsMixin
 from rest_framework import serializers
 from .models import CustomUser as User
 
@@ -15,6 +17,17 @@ class UserSerializer(serializers.ModelSerializer):
             },
         }
 
+    def create(self, validated_data):
+        user = User(
+            username=validated_data["username"],
+            email=validated_data["email"],
+            first_name=validated_data["first_name"],
+            last_name=validated_data["last_name"],
+            image_path=validated_data["image_path"]
+        )
+        user.set_password(validated_data["password"])
+        user.save()
+        return user
 
 
 class UserListSerializer(serializers.ModelSerializer):

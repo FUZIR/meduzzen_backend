@@ -22,5 +22,6 @@ from core.meduzzen_backend import views
 urlpatterns = [
     path('', views.health_check),
     path('admin/', admin.site.urls),
-    path('api/', include('core.user.urls')),
+    path('auth/', include('core.user.urls')),
+    path('auth/', include('djoser.urls.authtoken'))
 ]
