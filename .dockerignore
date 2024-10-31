@@ -5,3 +5,7 @@ README.md
 db.sqlite3
 .idea
 venv
+redis-config
+redis-data
+db-data
+app

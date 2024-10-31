@@ -1,4 +1,4 @@
-FROM python:3.11-alpine
+FROM python:3.11-slim
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
 ENV DJANGO_SETTINGS_MODULE=core.meduzzen_backend.settings
@@ -7,7 +7,7 @@ WORKDIR /app
 
 COPY poetry.lock pyproject.toml /app/
 
-RUN apk update && apk add --no-cache postgresql-dev gcc python3-dev musl-dev
+RUN apt-get update && apt-get install -y libpq-dev gcc python3-dev && rm -rf /var/lib/apt/lists/*
 
 RUN pip install poetry
 
