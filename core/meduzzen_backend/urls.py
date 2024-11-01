@@ -14,14 +14,15 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+
 from django.contrib import admin
 from django.urls import path, include
 
 from core.meduzzen_backend import views
 
 urlpatterns = [
-    path('', views.health_check),
-    path('admin/', admin.site.urls),
-    path('auth/', include('core.user.urls')),
-    path('auth/', include('djoser.urls.authtoken'))
+    path("", views.health_check),
+    path("admin/", admin.site.urls),
+    path("auth/", include("core.user.urls")),
+    path("auth/", include("djoser.urls.authtoken")),
 ]

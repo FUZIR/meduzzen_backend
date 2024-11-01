@@ -1,7 +1,4 @@
-import djoser.serializers
-from django.contrib.auth import get_user_model
 from django.db.models import QuerySet
-from djoser.serializers import UserFunctionsMixin
 from rest_framework import serializers
 from .models import CustomUser as User
 
@@ -9,12 +6,18 @@ from .models import CustomUser as User
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["username", "first_name", "last_name", "email", "password", "image_path", "created_at",
-                  "updated_at"]
+        fields = [
+            "username",
+            "first_name",
+            "last_name",
+            "email",
+            "password",
+            "image_path",
+            "created_at",
+            "updated_at",
+        ]
         extra_kwargs = {
-            "is_active": {
-                "required": False
-            },
+            "is_active": {"required": False},
         }
 
     def create(self, validated_data):
@@ -23,7 +26,7 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
-            image_path=validated_data["image_path"]
+            image_path=validated_data["image_path"],
         )
         user.set_password(validated_data["password"])
         user.save()
