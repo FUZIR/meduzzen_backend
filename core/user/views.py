@@ -1,10 +1,9 @@
 import djoser.serializers
-from rest_framework import viewsets, status
 from rest_framework.decorators import permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAdminUser
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
 from djoser.views import UserViewSet as DjoserViewSet
 
 from .models import CustomUser as User
@@ -19,11 +18,11 @@ class UserViewSet(DjoserViewSet):
     pagination_class = LimitOffsetPagination
 
     def get_serializer_class(self):
-        if self.action in ['create', 'set_password']:
+        if self.action in ["create", "set_password"]:
             return UserSerializer
-        elif self.action == 'reset_password':
+        elif self.action == "reset_password":
             return djoser.serializers.SendEmailResetSerializer
-        elif self.action == 'reset_password_confirm':
+        elif self.action == "reset_password_confirm":
             return djoser.serializers.PasswordResetConfirmSerializer
         return UserListSerializer
 
