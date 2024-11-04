@@ -42,7 +42,7 @@ jobs:
     needs: setup
     steps:
       - name: Install Ruff
-        run: ~/.local/bin/poetry add ruff
+        run: poetry add ruff
 
       - name: Run linter(Ruff)
         run: poetry run ruff check
@@ -68,7 +68,7 @@ jobs:
       POSTGRES_PORT: 5432
     steps:
       - name: Run migrations
-        run: ~/.local/bin/poetry run python -m core.manage makemigrations
+        run: poetry run python -m core.manage makemigrations
 
 
   tests:
@@ -77,4 +77,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Tests
-        run: ~/.local/bin/poetry run python -m core.manage test
+        run: poetry run python -m core.manage test
