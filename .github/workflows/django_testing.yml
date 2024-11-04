@@ -41,8 +41,11 @@ jobs:
     name: Linting Django project
     needs: setup
     steps:
+      - name: Install Ruff
+        run: ~/.local/bin/poetry add ruff
+
       - name: Run linter(Ruff)
-        run: ruff check
+        run: poetry run ruff check
 
   migrations:
     name: Migrations Test
