@@ -71,8 +71,8 @@ jobs:
       POSTGRES_USER: ${{ secrets.POSTGRES_USER}}
       POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD}}
       POSTGRES_DB: ${{ secrets.POSTGRES_DB}}
-      POSTGRES_HOST: localhost
-      POSTGRES_PORT: 5432
+      POSTGRES_HOST: ${{secrets.POSTGRES_HOST}}
+      POSTGRES_PORT: ${{secrets.POSGRES_PORT}}
     steps:
       - name: Load cached venv
         id: cached-poetry-dependencies
@@ -81,7 +81,9 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
       - name: Run migrations
-        run: poetry run python -m core.manage makemigrations
+        run: |
+          source .venv/bin/activate
+          python -m core.manage makemigrations
 
 
   tests:
