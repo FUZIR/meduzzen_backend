@@ -38,6 +38,12 @@ jobs:
     name: Linting Django project
     needs: setup
     steps:
+      - name: Restore Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+
       - name: Run linter(Ruff)
         run: poetry run ruff check
 
@@ -61,6 +67,11 @@ jobs:
       POSTGRES_HOST: localhost
       POSTGRES_PORT: 5432
     steps:
+      - name: Restore Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Run migrations
         run: poetry run python -m core.manage makemigrations
 
@@ -70,5 +81,10 @@ jobs:
     needs: [ setup, lint, migrations ]
     runs-on: ubuntu-latest
     steps:
+      - name: Restore Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pypoetry
+          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
       - name: Run Tests
         run: poetry run python -m core.manage test
