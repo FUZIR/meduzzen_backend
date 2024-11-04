@@ -46,7 +46,7 @@ jobs:
     needs: setup
     steps:
       - name: Run linter(Ruff)
-        run: poetry run ruff .
+        run: poetry run ruff check
 
   migrations:
     name: Migrations Test
