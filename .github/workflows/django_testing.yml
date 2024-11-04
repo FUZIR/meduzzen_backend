@@ -52,7 +52,7 @@ jobs:
       - name: Run linter(Ruff)
         run: |
           source .venv/bin/activate
-          poetry run ruff check
+          ruff check
 
   migrations:
     name: Migrations Test
