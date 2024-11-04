@@ -18,15 +18,6 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Cache Poetry dependencies
-        id: cache-poetry
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-
       - name: Install Poetry
         uses: snok/install-poetry@v1
         with:
@@ -36,6 +27,12 @@ jobs:
       - name: Install dependencies
         if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: poetry install --no-root
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
   lint:
     runs-on: ubuntu-latest
     name: Linting Django project
@@ -44,8 +41,8 @@ jobs:
       - name: Restore Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
 
       - name: Run linter(Ruff)
         run: poetry run ruff check
@@ -73,8 +70,8 @@ jobs:
       - name: Restore Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
       - name: Run migrations
         run: poetry run python -m core.manage makemigrations
 
@@ -87,7 +84,7 @@ jobs:
       - name: Restore Poetry dependencies
         uses: actions/cache@v4
         with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('poetry.lock') }}
       - name: Run Tests
         run: poetry run python -m core.manage test
