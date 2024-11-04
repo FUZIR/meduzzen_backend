@@ -31,18 +31,18 @@ jobs:
         run: curl -sSL https://install.python-poetry.org | python3 -
 
       - name: Install dependencies
-        run: poetry install
+        run: ~/.local/bin/poetry install
 
       - name: Install dependencies
         if: steps.cache-poetry.outputs.cache-hit != 'true'
-        run: poetry install --no-root
+        run: ~/.local/bin/poetry install --no-root
   lint:
     runs-on: ubuntu-latest
     name: Linting Django project
     needs: setup
     steps:
       - name: Run linter(Ruff)
-        run: poetry run ruff check
+        run: ~/.local/bin/poetry run ruff check
 
   migrations:
     name: Migrations Test
@@ -65,7 +65,7 @@ jobs:
       POSTGRES_PORT: 5432
     steps:
       - name: Run migrations
-        run: poetry run python -m core.manage makemigrations
+        run: ~/.local/bin/poetry run python -m core.manage makemigrations
 
   tests:
     name: Django Test
@@ -73,4 +73,4 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Run Tests
-        run: poetry run python -m core.manage test
+        run: ~/.local/bin/poetry run python -m core.manage test
