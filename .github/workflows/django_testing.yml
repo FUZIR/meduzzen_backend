@@ -80,6 +80,9 @@ jobs:
         with:
           path: .venv
           key: venv-${{ runner.os }}-${{ steps.setup-python.outputs.python-version }}-${{ hashFiles('**/poetry.lock') }}
+      - name: List files for debugging
+        run: ls -R /home/runner/work/meduzzen_backend/
+
       - name: Run migrations
         run: |
           source .venv/bin/activate
