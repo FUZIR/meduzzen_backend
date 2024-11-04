@@ -6,9 +6,11 @@ on:
       - "develop"
 
 jobs:
-  lint:
+  setup:
+    name: Setup Enviroment
     runs-on: ubuntu-latest
-    name: Linting Django project
+    outputs:
+      poetry_cache_path: ~/.cache/pypoetry
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -35,14 +37,19 @@ jobs:
           installer-parallel: true
 
       - name: Install dependencies
+        if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: poetry install --no-root
-
+  lint:
+    runs-on: ubuntu-latest
+    name: Linting Django project
+    needs: setup
+    steps:
       - name: Run linter(Ruff)
         run: poetry run ruff .
 
   migrations:
     name: Migrations Test
-    needs: lint
+    needs: [setup,lint]
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -50,77 +57,23 @@ jobs:
         ports:
           - "5432:5432"
         env:
-          POSTGRES_USER: ${{POSTGRES_USER}}
-          POSTGRES_PASSWORD: ${{POSTGRES_PASSWORD}}
-          POSTGRES_DB: ${{POSTGRES_DB}}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER}}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD}}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB}}
     env:
-      POSTGRES_USER: ${{POSTGRES_USER}}
-      POSTGRES_PASSWORD: ${{POSTGRES_PASSWORD}}
-      POSTGRES_DB: ${{POSTGRES_DB}}
-      POSTGRES_HOST: ${{POSTGRES_HOST}}
-      POSTGRES_PORT: ${{POSTGRES_PORT}}
+      POSTGRES_USER: ${{ secrets.POSTGRES_USER}}
+      POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD}}
+      POSTGRES_DB: ${{ secrets.POSTGRES_DB}}
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: 5432
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Cache Poetry dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.4
-          virtualenvs-create: true
-          virtualenvs-in-project: false
-          installer-parallel: true
-
-      - name: Install dependencies
-        run: poetry install --no-root
-
       - name: Run migrations
         run: poetry run python -m core.manage makemigrations
 
   tests:
     name: Django Test
-    needs: [ lint, migrations ]
+    needs: [ setup, lint, migrations ]
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
-      - name: Install python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-
-      - name: Cache Poetry dependencies
-        uses: actions/cache@v3
-        with:
-          path: ~/.cache/pypoetry
-          key: ${{ runner.os }}-poetry-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-poetry-
-
-      - name: Install and configure Poetry
-        uses: snok/install-poetry@v1
-        with:
-          version: 1.8.4
-          virtualenvs-create: true
-          virtualenvs-in-project: false
-          installer-parallel: true
-
-      - name: Install dependencies
-        run: poetry install --no-root
-
       - name: Run Tests
         run: poetry run python -m core.manage test
