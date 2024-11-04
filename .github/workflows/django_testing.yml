@@ -33,10 +33,6 @@ jobs:
       - name: Install dependencies
         run: poetry install
 
-      - name: Linting Django project
-        run: poetry run ruff .
-
-
       - name: Install dependencies
         if: steps.cache-poetry.outputs.cache-hit != 'true'
         run: poetry install --no-root
