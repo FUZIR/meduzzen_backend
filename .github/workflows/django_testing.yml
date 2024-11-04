@@ -42,7 +42,7 @@ jobs:
     needs: setup
     steps:
       - name: Run linter(Ruff)
-        run: ~/.local/bin/poetry run ruff check
+        run: ruff check
 
   migrations:
     name: Migrations Test
