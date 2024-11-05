@@ -34,10 +34,9 @@ jobs:
       - name: Install dependencies
         run: poetry install
         if: steps.cached-poetry-dependencies.outputs.cache-hit != 'true'
-
   lint:
     runs-on: ubuntu-latest
-    uses: setup
+    needs: setup
     steps:
       - name: Run linter
         run: poetry run ruff check
