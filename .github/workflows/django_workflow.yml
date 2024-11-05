@@ -38,6 +38,9 @@ jobs:
     runs-on: ubuntu-latest
     needs: setup
     steps:
+      - name: Checkout project
+        uses: actions/checkout@v4
+
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
@@ -49,8 +52,10 @@ jobs:
           path: .venv
           key: venv-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}
 
-      - name: Configure Poetry to use existing virtual environment
-        run: poetry config virtualenvs-path .venv
+      - name: Set Poetry to use the restored virtual environment
+        run: |
+          poetry config virtualenvs-path .venv
+          source .venv/bin/activate
 
       - name: Run linter
         run: poetry run ruff check
