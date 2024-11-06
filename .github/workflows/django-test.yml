@@ -33,17 +33,14 @@ jobs:
         if: steps.poetry-cache-path.outputs.cache-hit != 'true'
         run: poetry install --no-root
 
-      - name: Cache virtual environment
-        if: steps.poetry-cache-path.outputs.cache-hit != 'true'
-        uses: actions/cache@v4
+      - name: Save virtual environment as artifact
+        if: always()
+        run: tar -czf .venv.tar.gz .venv
+      - name: Upload virtual environment
+        uses: actions/upload-artifact@v3
         with:
-          path: .venv
-          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-venv-
-
-      - name: Show Poetry version
-        run: poetry --version
+          name: venv
+          path: .venv.tar.gz
 
   lint:
     needs: setup
@@ -52,13 +49,22 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Use cached virtual environment
-        uses: actions/cache@v2
+      - name: Download virtual environment
+        uses: actions/download-artifact@v3
         with:
-          path: .venv
-          key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-venv-
+          name: venv
+          path: .
+
+      - name: Extract virtual environment
+        run: tar -xzf .venv.tar.gz
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+
+      - name: Install Poetry
+        uses: Gr1N/setup-poetry@v8
 
       - name: Run ruff lint
         run: poetry run ruff check
