@@ -68,6 +68,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-venv-
 
+      - name: Install dependencies
+        if: steps.poetry-cache-path.outputs.cache-hit != 'true'
+        run: poetry install --no-root
+
       - name: Run ruff lint
         run: poetry run ruff check
 
@@ -108,6 +112,10 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-venv-
 
+      - name: Install dependencies
+        if: steps.poetry-cache-path.outputs.cache-hit != 'true'
+        run: poetry install --no-root
+
       - name: Run tests
         env:
           DATABASE_URL: postgres://test_user:test_password@localhost:5432/test_db
@@ -134,5 +142,10 @@ jobs:
           key: ${{ runner.os }}-venv-${{ hashFiles('poetry.lock') }}
           restore-keys: |
             ${{ runner.os }}-venv-
+
+      - name: Install dependencies
+        if: steps.poetry-cache-path.outputs.cache-hit != 'true'
+        run: poetry install --no-root
+
       - name: Check migrations
-        run: poetry run python core.manage makemigrations --check
+        run: poetry run python manage.py makemigrations --check
