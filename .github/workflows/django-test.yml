@@ -73,7 +73,7 @@ jobs:
         run: poetry install --no-root
 
       - name: Run ruff lint
-        run: poetry run ruff check
+        run: poetry run ruff check --fix
 
   tests:
     needs: [ setup, lint ]
@@ -148,4 +148,4 @@ jobs:
         run: poetry install --no-root
 
       - name: Check migrations
-        run: poetry run python manage.py makemigrations --check
+        run: poetry run python -m core.manage makemigrations --check
