@@ -150,4 +150,6 @@ jobs:
         run: poetry install --no-root
 
       - name: Check migrations
+        env:
+          SECRET_KEY: ${{secrets.SECRET_KEY}}
         run: poetry run python -m core.manage makemigrations --check
