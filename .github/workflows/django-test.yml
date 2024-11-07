@@ -10,13 +10,13 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_DB: test_db
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U test_user"
+          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }}"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
@@ -55,33 +55,31 @@ jobs:
 
       - name: Run tests
         env:
-          SECRET_KEY: ${{secrets.SECRET_KEY}}
-          DEBUG: ${{secrets.DEBUG}}
-          ALLOWED_HOSTS: ${{secrets.ALLOWED_HOSTS}}
-          EMAIL_ACCOUNT: ${{secrets.EMAIL_ACCOUNT}}
-          EMAIL_PASSWORD: ${{secrets.EMAIL_PASSWORD}}
-          CORS_ORIGIN_ALLOW_ALL: ${{secrets.CORS_ORIGIN_ALLOW_ALL}}
-          CORS_ORIGIN_WHITELIST: ${{secrets.CORS_ORIGIN_WHITELIST}}
-          POSTGRES_DB: test_db
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DEBUG: ${{ secrets.DEBUG }}
+          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+          EMAIL_ACCOUNT: ${{ secrets.EMAIL_ACCOUNT }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          CORS_ORIGIN_ALLOW_ALL: ${{ secrets.CORS_ORIGIN_ALLOW_ALL }}
+          CORS_ORIGIN_WHITELIST: ${{ secrets.CORS_ORIGIN_WHITELIST }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
         continue-on-error: true
         run: poetry run python -m core.manage test
 
       - name: Run migrations
         env:
-          SECRET_KEY: ${{secrets.SECRET_KEY}}
-          DEBUG: ${{secrets.DEBUG}}
-          ALLOWED_HOSTS: ${{secrets.ALLOWED_HOSTS}}
-          EMAIL_ACCOUNT: ${{secrets.EMAIL_ACCOUNT}}
-          EMAIL_PASSWORD: ${{secrets.EMAIL_PASSWORD}}
-          CORS_ORIGIN_ALLOW_ALL: ${{secrets.CORS_ORIGIN_ALLOW_ALL}}
-          CORS_ORIGIN_WHITELIST: ${{secrets.CORS_ORIGIN_WHITELIST}}
-          POSTGRES_DB: test_db
-          POSTGRES_USER: test_user
-          POSTGRES_PASSWORD: test_password
-          POSTGRES_HOST: localhost
-          POSTGRES_PORT: 5432
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DEBUG: ${{ secrets.DEBUG }}
+          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+          EMAIL_ACCOUNT: ${{ secrets.EMAIL_ACCOUNT }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          CORS_ORIGIN_ALLOW_ALL: ${{ secrets.CORS_ORIGIN_ALLOW_ALL }}
+          CORS_ORIGIN_WHITELIST: ${{ secrets.CORS_ORIGIN_WHITELIST }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
         run: poetry run python -m core.manage migrate
