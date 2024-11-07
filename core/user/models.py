@@ -11,3 +11,6 @@ class CustomUser(AbstractUser, TimeStampedModel):
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "password", "image_path"]
+
+    class Meta:
+        db_table = "users"

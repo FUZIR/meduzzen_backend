@@ -62,7 +62,7 @@ DJOSER = {
     "PASSWORD_RESET_CONFIRM_URL": "http://localhost:8000/auth/users/reset_password/",
     "SERIALIZERS": {
         "user_create": "core.user.serializers.UserSerializer",
-        "user": "core.user.serializers.UserSerializer",
+        "user": "core.user.serializers.UserListSerializer",
         "current_user": "core.user.serializers.UserSerializer",
         "password_reset": "djoser.serializers.SendEmailResetSerializer",
         "password_reset_confirm": "djoser.serializers.PasswordResetConfirmSerializer",
