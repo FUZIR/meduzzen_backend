@@ -48,12 +48,6 @@ jobs:
       - name: Run ruff lint
         run: poetry run ruff check
 
-      - name: Print environment variables for debugging
-        run: |
-          echo "POSTGRES_DB=${{POSTGRES_DB}}"
-          echo "POSTGRES_USER=${{POSTGRES_USER}}"
-          echo "POSTGRES_PASSWORD=${{POSTGRES_PASSWORD}}"
-          echo "POSTGRES_HOST=${{POSTGRES_HOST}}"
       - name: Run migrations
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
@@ -67,7 +61,7 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_HOST: postgres  # здесь используем имя контейнера
           POSTGRES_PORT: 5432
         run: poetry run python -m core.manage migrate
 
@@ -83,6 +77,6 @@ jobs:
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          POSTGRES_HOST: postgres
           POSTGRES_PORT: 5432
         run: poetry run python -m core.manage test
