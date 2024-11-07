@@ -48,13 +48,6 @@ jobs:
       - name: Run ruff lint
         run: poetry run ruff check
 
-      - name: Wait for PostgreSQL to be ready
-        run: |
-          until pg_isready -h ${{secrets.POSTGRES_HOST}} -p 5432 -U ${{ secrets.POSTGRES_USER }}; do
-            echo "Waiting for PostgreSQL..."
-            sleep 2
-          done
-
       - name: Run migrations
         env:
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
