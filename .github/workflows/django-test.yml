@@ -60,6 +60,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST}}
           POSTGRES_PORT: 5432
+
         run: |
           echo "POSTGRES_DB=$POSTGRES_DB"
           echo "POSTGRES_USER=$POSTGRES_USER"
