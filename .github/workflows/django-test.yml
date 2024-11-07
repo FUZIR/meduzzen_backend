@@ -76,7 +76,7 @@ jobs:
           EMAIL_PASSWORD: ${{secrets.EMAIL_PASSWORD}}
           CORS_ORIGIN_ALLOW_ALL: ${{secrets.CORS_ORIGIN_ALLOW_ALL}}
           CORS_ORIGIN_WHITELIST: ${{secrets.CORS_ORIGIN_WHITELIST}}
-          POSTGRES_DB: ${{secrets.POSTGRES_DB}}
-          POSTGRES_USER: ${{secrets.POSTGRES_USER}}
-          POSTGRES_PASSWORD: ${{secrets.POSTGRES_PASSWORD}}
+          POSTGRES_DB: test_db
+          POSTGRES_USER: test_user
+          POSTGRES_PASSWORD: test_password
         run: poetry run python -m core.manage migrate
