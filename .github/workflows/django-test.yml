@@ -55,8 +55,10 @@ jobs:
 
       - name: Run tests
         continue-on-error: true
+        run: poetry run pytest
+
+      - name: Run migrations
         env:
-          DATABASE_URL: postgres://${{ secrets.POSTGRES_USER }}:${{ secrets.POSTGRES_PASSWORD }}@localhost:5432/${{ secrets.POSTGRES_DB }}
           SECRET_KEY: ${{ secrets.SECRET_KEY }}
           DEBUG: ${{ secrets.DEBUG }}
           ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
@@ -69,7 +71,4 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
           POSTGRES_PORT: ${{ secrets.POSTGRES_PORT || 5432 }}
-        run: poetry run pytest
-
-      - name: Run migrations
         run: poetry run python -m core.manage migrate
