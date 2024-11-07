@@ -54,6 +54,8 @@ jobs:
         run: poetry run ruff check
 
       - name: Run tests
+        env:
+           SECRET_KEY: ${{ secrets.SECRET_KEY }}
         continue-on-error: true
         run: poetry run python -m core.manage test
 
