@@ -45,21 +45,6 @@ jobs:
         if: steps.poetry-cache-path.outputs.cache-hit != 'true'
         run: poetry install --no-root
 
-      - name: Print environment variables for debugging
-        env:
-          SECRET_KEY: ${{ secrets.SECRET_KEY }}
-          DEBUG: ${{ secrets.DEBUG }}
-          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
-          EMAIL_ACCOUNT: ${{ secrets.EMAIL_ACCOUNT }}
-          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
-          CORS_ORIGIN_ALLOW_ALL: ${{ secrets.CORS_ORIGIN_ALLOW_ALL }}
-          CORS_ORIGIN_WHITELIST: ${{ secrets.CORS_ORIGIN_WHITELIST }}
-          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
-          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
-          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST}}
-          POSTGRES_PORT: 5432
-
       - name: Run ruff lint
         run: poetry run ruff check
 
