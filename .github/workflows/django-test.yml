@@ -10,13 +10,13 @@ jobs:
       postgres:
         image: postgres:14
         env:
-          POSTGRES_DB: quiz_db
-          POSTGRES_USER: admin
-          POSTGRES_PASSWORD: password
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
         ports:
           - 5432:5432
         options: >-
-          --health-cmd "pg_isready -U admin"
+          --health-cmd "pg_isready -U ${{ secrets.POSTGRES_USER }}"
           --health-interval 10s
           --health-timeout 5s
           --health-retries 5
