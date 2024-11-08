@@ -1,4 +1,5 @@
 import djoser.serializers
+from django.utils.translation import gettext as _
 from rest_framework.decorators import permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAdminUser
@@ -33,4 +34,4 @@ class UserViewSet(DjoserViewSet):
             user.delete()
             return Response(status=HTTP_200_OK)
         except User.DoesNotExist:
-            return Response({"detail": "User not found"}, status=HTTP_404_NOT_FOUND)
+            return Response({"detail": _("User not found")}, status=HTTP_404_NOT_FOUND)
