@@ -1257,3 +1257,33 @@ msgstr ""
 
 msgid "User not found"
 msgstr "User not found"
+
+msgid "This password is too short. It must contain at least 8 characters."
+msgstr "This password is too short. It must contain at least 8 characters."
+
+msgid "Invalid token."
+msgstr "Invalid token."
+
+msgid "Unable to log in with provided credentials."
+msgstr "Unable to log in with provided credentials."
+
+msgid "User account is disabled."
+msgstr "User account is disabled."
+
+msgid "Invalid token for given user."
+msgstr "Invalid token for given user."
+
+msgid "Invalid id for the given user."
+msgstr "Invalid id for the given user."
+
+msgid "The two password fields didn't match."
+msgstr "The two password fields didn't match."
+
+msgid "Invalid password."
+msgstr "Invalid password."
+
+msgid "User with given email does not exist."
+msgstr "User with given email does not exist."
+
+msgid "Unable to create account."
+msgstr "Unable to create account."
