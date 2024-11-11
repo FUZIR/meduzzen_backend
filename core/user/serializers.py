@@ -12,6 +12,7 @@ class UserSerializer(serializers.ModelSerializer):
             "last_name",
             "email",
             "password",
+            "company",
             "image_path",
             "created_at",
             "updated_at",
@@ -26,6 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
             email=validated_data["email"],
             first_name=validated_data["first_name"],
             last_name=validated_data["last_name"],
+            company=validated_data["company"],
         )
         user.set_password(validated_data["password"])
         user.save()
@@ -35,7 +37,7 @@ class UserSerializer(serializers.ModelSerializer):
 class UserListSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "first_name", "last_name", "email", "created_at", "image_path"]
+        fields = ["id", "username", "first_name", "last_name", "email", "company", "created_at", "image_path"]
         extra_kwargs = {field: {"read_only": True} for field in fields}
 
     def to_representation(self, instance):

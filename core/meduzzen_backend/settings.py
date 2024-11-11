@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "core.utils",
     "core.user",
+    "core.company",
 ]
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
@@ -71,6 +72,7 @@ DJOSER = {
     "PERMISSIONS": {
         "user_create": ["rest_framework.permissions.AllowAny"],
         "user": ["rest_framework.permissions.IsAuthenticated"],
+        "company": ["rest_framework.permissions.IsAuthenticated"]
     },
 }
 
