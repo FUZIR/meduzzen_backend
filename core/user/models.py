@@ -11,6 +11,9 @@ class CustomUser(AbstractUser, TimeStampedModel):
     image_path = models.URLField(blank=True)
     email = models.EmailField(unique=True)
     company = models.ForeignKey(Company, on_delete=SET_NULL, null=True, related_name='members')
+    description = models.CharField(max_length=255, blank=True)
+    country = models.CharField(max_length=50, blank=True)
+    visible = models.BooleanField(default=True, blank=False)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["username", "password", "image_path"]
