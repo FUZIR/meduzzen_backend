@@ -31,7 +31,7 @@ class CompanyViewSet(ModelViewSet):
             return [IsAuthenticated()]
 
     def create(self, request: Request, *args, **kwargs) -> Response:
-        serializer = CreateCompanySerializer(data=request.data)
+        serializer = CreateCompanySerializer(data=request.data, context={"request": request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=HTTP_201_CREATED)

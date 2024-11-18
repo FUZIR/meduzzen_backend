@@ -1,13 +1,15 @@
 from django.db.models import QuerySet
 from rest_framework import serializers
-
 from core.user.serializers import UserListSerializer
+from core.invitation.serializers import RequestUpdateSerializer
 from .models import Company
 
 
 class CompanySerializer(serializers.ModelSerializer):
     owner = UserListSerializer(many=False, read_only=True)
     members = UserListSerializer(many=True, read_only=True)
+    requests = RequestUpdateSerializer(many=True, read_only=True)
+
     class Meta:
         model = Company
         fields = [
@@ -17,10 +19,12 @@ class CompanySerializer(serializers.ModelSerializer):
             "image_path",
             "owner",
             "members",
+            "requests",
             "created_at",
             "updated_at",
         ]
         read_only_fields = ["owner"]
+
 
 class CreateCompanySerializer(serializers.ModelSerializer):
     class Meta:
@@ -30,16 +34,16 @@ class CreateCompanySerializer(serializers.ModelSerializer):
             "description",
             "company_email",
             "image_path",
-            "owner",
         ]
 
     def create(self, validated_data):
+        user = self.context["request"].user
         company = Company(
             name=validated_data["name"],
             description=validated_data["description"],
             company_email=validated_data["company_email"],
             image_path=validated_data["image_path"],
-            owner=validated_data["owner"],
+            owner=user,
         )
         company.save()
         return company

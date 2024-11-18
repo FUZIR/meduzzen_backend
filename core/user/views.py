@@ -31,11 +31,11 @@ class UserViewSet(DjoserViewSet):
 
     def list(self, request, *args, **kwargs):
         users = User.objects.filter(visible=True)
-        serializer = UserListSerializer(users)
+        serializer = UserListSerializer(users, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
 
     def get_serializer_class(self):
-        if self.action in ["create", "set_password", "update", "partial_update"]:
+        if self.action in ["create", "set_password", "update", "partial_update", "retrieve"]:
             return UserSerializer
         elif self.action == "reset_password":
             return djoser.serializers.SendEmailResetSerializer
