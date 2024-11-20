@@ -1,7 +1,7 @@
 from django.db.models import QuerySet
 from rest_framework import serializers
 from core.user.serializers import UserListSerializer
-from core.invitation.serializers import RequestUpdateSerializer
+from core.request.serializers import RequestUpdateSerializer
 from .models import Company
 
 

@@ -4,8 +4,9 @@ from rest_framework.decorators import permission_classes
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 from djoser.views import UserViewSet as DjoserViewSet
+from rest_framework.views import APIView
 
 from .models import CustomUser as User
 from .permissions import OwnProfilePermission
@@ -51,3 +52,16 @@ class UserViewSet(DjoserViewSet):
             return Response(status=HTTP_200_OK)
         except User.DoesNotExist:
             return Response({"detail": _("User not found")}, status=HTTP_404_NOT_FOUND)
+
+
+class LeaveCompany(APIView):
+    permission_classes = [IsAuthenticated, OwnProfilePermission]
+
+    def post(self, request, *args, **kwargs):
+        user = request.user
+        if not user.company:
+            return Response({"detail": _("You are not a member of any company")}, status=HTTP_400_BAD_REQUEST)
+
+        user.company = None
+        user.save()
+        return Response({"detail": _("You successfully leave company")}, status=HTTP_200_OK)

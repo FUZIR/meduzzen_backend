@@ -1,24 +1,24 @@
 from rest_framework import serializers
 
-from .models import InvitationModel
+from .models import RequestModel
 
 
-class InvitationCreateSerializer(serializers.ModelSerializer):
+class RequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = InvitationModel
+        model = RequestModel
         fields = [
-            "company",
             "user",
+            "company"
         ]
 
 
-class InvitationUpdateSerializer(serializers.ModelSerializer):
+class RequestUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = InvitationModel
+        model = RequestModel
         fields = [
             "id",
-            "company",
             "user",
+            "company",
             "status"
         ]
         extra_kwargs = {

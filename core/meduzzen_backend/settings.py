@@ -49,7 +49,8 @@ INSTALLED_APPS = [
     "core.utils",
     "core.user",
     "core.company",
-    "core.invitation"
+    "core.invitation",
+    "core.request"
 ]
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",

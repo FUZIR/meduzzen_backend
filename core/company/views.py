@@ -1,10 +1,14 @@
-from rest_framework.generics import get_object_or_404
+from rest_framework.generics import get_object_or_404, ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from django.utils.translation import gettext_lazy as _
 
+from core.user.models import CustomUser
+from core.user.serializers import UserListSerializer
 from .models import Company
 from .permissions import OwnCompanyPermission
 from .serializers import CompanyListSerializer, CompanySerializer, CreateCompanySerializer
@@ -68,3 +72,42 @@ class CompanyViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(status=HTTP_200_OK)
+
+class RemoveUser(APIView):
+    permission_classes = [IsAuthenticated, OwnCompanyPermission]
+
+    def post(self, request, *args, **kwargs):
+        owner = request.user
+        user_id = request.data.get("user")
+        company_id = request.data.get("company")
+
+        company = get_object_or_404(Company, id=company_id, owner=owner)
+        user = get_object_or_404(CustomUser, id=user_id)
+
+        if user.company != company:
+            return Response({"detail": _("User is not a member of this company")}, status=HTTP_400_BAD_REQUEST)
+        user.company = None
+        user.save()
+        return Response({"detail": _("User removed successfully")}, status=HTTP_200_OK)
+
+
+class GetCompanyMembers(ListAPIView):
+    serializer_class = UserListSerializer
+    permission_classes = [IsAuthenticated, OwnCompanyPermission]
+    pagination_class = None
+
+    def get_queryset(self):
+        company_id = self.request.query_params.get("company_id")
+        if not company_id:
+            raise ValueError("Company ID is required")
+        company = get_object_or_404(Company, id=company_id)
+        self.check_object_permissions(self.request, company)
+        return company.members.all()
+
+    def list(self, request, *args, **kwargs):
+        try:
+            queryset = self.get_queryset()
+            serializer = self.get_serializer(queryset, many=True)
+            return Response(serializer.data)
+        except ValueError as e:
+            return Response({"detail": str(e)}, status=HTTP_400_BAD_REQUEST)
