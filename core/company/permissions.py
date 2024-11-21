@@ -24,7 +24,7 @@ class OwnCompanyPermission(permissions.BasePermission):
                         and company_id
                         and Company.objects.filter(id=company_id, owner=request.user).exists()
                 )
-            elif view.action == "list":
+            elif view.action in ["list", "get_members"]:
                 company_id = request.query_params.get("company")
                 return (
                         request.user.is_authenticated

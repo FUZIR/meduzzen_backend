@@ -1,13 +1,14 @@
 import djoser.serializers
 from django.utils.translation import gettext as _
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import permission_classes, action
 from rest_framework.pagination import LimitOffsetPagination
 from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 from djoser.views import UserViewSet as DjoserViewSet
-from rest_framework.views import APIView
 
+from core.invitation.models import InvitationModel
+from core.invitation.serializers import InvitationUpdateSerializer
 from .models import CustomUser as User
 from .permissions import OwnProfilePermission
 from .serializers import UserSerializer
@@ -53,11 +54,18 @@ class UserViewSet(DjoserViewSet):
         except User.DoesNotExist:
             return Response({"detail": _("User not found")}, status=HTTP_404_NOT_FOUND)
 
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticated, OwnProfilePermission],
+            url_path="invitations")
+    def get_invitations(self, request, *args, **kwargs):
+        user = request.user
+        user_invitations = InvitationModel.objects.filter(user=user.id)
+        if not user_invitations.exists():
+            return Response({"detail": "Invitation not found"}, status=HTTP_404_NOT_FOUND)
+        serializer = InvitationUpdateSerializer(user_invitations, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
 
-class LeaveCompany(APIView):
-    permission_classes = [IsAuthenticated, OwnProfilePermission]
-
-    def post(self, request, *args, **kwargs):
+    @action(methods=["POST"], detail=False, permission_classes=[IsAuthenticated, OwnProfilePermission], url_path="leave")
+    def leave_company(self, request, *args, **kwargs):
         user = request.user
         if not user.company:
             return Response({"detail": _("You are not a member of any company")}, status=HTTP_400_BAD_REQUEST)

@@ -42,7 +42,7 @@ class InvitationAcceptanceTests(BaseTestCase):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
 
-        accept_response = self.client.patch("/api/company-invitations/accept/", {
+        accept_response = self.client.patch("/api/invitations/invitation-accept/", {
             "id": self.accept_invitation.id
         }, content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}", follow=True)
 
@@ -57,7 +57,7 @@ class InvitationAcceptanceTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        accept_response = self.client.patch("/api/company-invitations/accept/", {
+        accept_response = self.client.patch("/api/invitations/invitation-accept/", {
             "id": self.accept_invitation.id
         }, content_type="application/json",
                                             HTTP_AUTHORIZATION=f"Token {token}", follow=True)
@@ -75,7 +75,7 @@ class InvitationRejectionTests(BaseTestCase):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
 
-        reject_response = self.client.patch("/api/company-invitations/reject/", {
+        reject_response = self.client.patch("/api/invitations/invitation-reject/", {
             "id": self.reject_invitation.id
         }, content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}", follow=True)
 
@@ -90,7 +90,7 @@ class InvitationRejectionTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        reject_response = self.client.patch("/api/company-invitations/reject/", {
+        reject_response = self.client.patch("/api/invitations/invitation-reject/", {
             "id": self.reject_invitation.id
         }, content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(reject_response.status_code, 403)
@@ -107,7 +107,7 @@ class InvitationRevocationTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        revoke_response = self.client.patch("/api/company-invitations/revoke/", {
+        revoke_response = self.client.patch("/api/invitations/invitation-revoke/", {
             "id": self.revoke_invitation.id
         }, content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}", follow=True)
 
@@ -122,7 +122,7 @@ class InvitationRevocationTests(BaseTestCase):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
 
-        revoke_response = self.client.patch("/api/company-invitations/revoke/", {
+        revoke_response = self.client.patch("/api/invitations/invitation-revoke/", {
             "id": self.revoke_invitation.id
         }, content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(revoke_response.status_code, 403)

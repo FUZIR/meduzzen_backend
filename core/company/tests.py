@@ -1,5 +1,6 @@
 from core.request.tests import BaseTestCase
 from core.user.models import CustomUser
+from core.request.models import RequestModel, RequestStatus
 
 
 # Create your tests here.
@@ -9,12 +10,14 @@ class GetCompanyMembersTest(BaseTestCase):
         self.member = CustomUser.objects.create_user(username="member", email="member@test.com",
                                                      password="testpassword")
         self.company.members.add(self.member)
+        self.other_user = CustomUser.objects.create_user(username="other", email="other@example.com",
+                                                         password="testpassword")
 
     def test_get_company_members_success(self):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
-        get_response = self.client.get("/api/company/members/",
-                                       {"company_id": self.company.id},
+        get_response = self.client.get("/api/companies/members/",
+                                       query_params={"company": self.company.id},
                                        HTTP_AUTHORIZATION=f"Token {token}")
         self.assertEqual(get_response.status_code, 200)
         self.assertIsInstance(get_response.data, list)
@@ -24,18 +27,21 @@ class GetCompanyMembersTest(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        get_response = self.client.get("/api/company/members/",
-                                       {"company_id": 99999},
+        get_response = self.client.get("/api/companies/members/",
+                                       query_params={"company": 99999},
                                        HTTP_AUTHORIZATION=f"Token {token}")
         self.assertEqual(get_response.status_code, 404)
 
     def test_get_company_members_no_access(self):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
-
-        get_response = self.client.get("/api/company/members/",
-                                       {"company_id": self.company.id},
-                                       HTTP_AUTHORIZATION=f"Token {token}")
+        self.company.owner = self.other_user
+        self.company.save()
+        get_response = self.client.get(
+            "/api/companies/members/",
+            {"company": self.company.id},
+            HTTP_AUTHORIZATION=f"Token {token}",
+        )
         self.assertEqual(get_response.status_code, 403)
         self.assertIn("detail", get_response.data)
         self.assertEqual(get_response.data["detail"], "You do not have permission to perform this action.")
@@ -44,11 +50,12 @@ class GetCompanyMembersTest(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        get_response = self.client.get("/api/company/members/",
+        get_response = self.client.get("/api/companies/members/",
                                        HTTP_AUTHORIZATION=f"Token {token}")
         self.assertEqual(get_response.status_code, 400)
         self.assertIn("detail", get_response.data)
         self.assertEqual(get_response.data["detail"], "Company ID is required")
+
 
 class RemoveUserTest(BaseTestCase):
     def setUp(self):
@@ -66,7 +73,7 @@ class RemoveUserTest(BaseTestCase):
         self.assertTrue(self.company.members.filter(id=self.user_to_remove.id).exists())
 
         remove_response = self.client.post(
-            "/api/company/remove-user/",
+            "/api/companies/remove-user/",
             {"user": self.user_to_remove.id, "company": self.company.id},
             HTTP_AUTHORIZATION=f"Token {token}"
         )
@@ -80,7 +87,7 @@ class RemoveUserTest(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
         remove_response = self.client.post(
-            "/api/company/remove-user/",
+            "/api/companies/remove-user/",
             {"user": 99999, "company": self.company.id},
             HTTP_AUTHORIZATION=f"Token {token}"
         )
@@ -90,9 +97,27 @@ class RemoveUserTest(BaseTestCase):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
         remove_response = self.client.post(
-            "/api/company/remove-user/",
+            "/api/companies/remove-user/",
             {"user": self.user.id, "company": self.company.id},
             HTTP_AUTHORIZATION=f"Token {token}"
         )
         self.assertEqual(remove_response.status_code, 404)
 
+
+class GetCompanyRequests(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.request = RequestModel.objects.create(company=self.company, user=self.user)
+        self.assertEqual(RequestModel.objects.count(), 1)
+
+    def test_get_requests_success(self):
+        token = self.login_user(self.owner.email, "testpassword")
+        self.assertIsNotNone(token)
+        get_response = self.client.get("/api/companies/request-list/", query_params={'company': self.company.id},
+                                       HTTP_AUTHORIZATION=f"Token {token}")
+        self.assertEqual(get_response.status_code, 200)
+        self.assertEqual(len(get_response.data), 1)
+        self.assertEqual(get_response.data[0]['id'], self.request.id)
+        self.assertEqual(get_response.data[0]['user'], self.request.user.id)
+        self.assertEqual(get_response.data[0]['company'], self.request.company.id)
+        self.assertEqual(get_response.data[0]['status'], RequestStatus.PENDING)

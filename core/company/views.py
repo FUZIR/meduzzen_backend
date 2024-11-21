@@ -1,14 +1,18 @@
-from rest_framework.generics import get_object_or_404, ListAPIView
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
-from rest_framework.views import APIView
+from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, \
+    HTTP_404_NOT_FOUND
 from rest_framework.viewsets import ModelViewSet
 from django.utils.translation import gettext_lazy as _
 
 from core.user.models import CustomUser
 from core.user.serializers import UserListSerializer
+from core.request.models import RequestModel
+from core.request.serializers import RequestUpdateSerializer
 from .models import Company
 from .permissions import OwnCompanyPermission
 from .serializers import CompanyListSerializer, CompanySerializer, CreateCompanySerializer
@@ -73,10 +77,20 @@ class CompanyViewSet(ModelViewSet):
         self.perform_update(serializer)
         return Response(status=HTTP_200_OK)
 
-class RemoveUser(APIView):
-    permission_classes = [IsAuthenticated, OwnCompanyPermission]
+    @action(methods=["GET"], url_path="request-list", detail=False,
+            permission_classes=[IsAuthenticated, OwnCompanyPermission])
+    def request_list(self, request, *args, **kwargs):
+        company_id = request.query_params.get("company")
+        company = get_object_or_404(self.get_queryset(), id=company_id)
+        requests = RequestModel.objects.filter(company=company)
+        if not requests:
+            return Response({"detail": "There is no requests"}, status=HTTP_404_NOT_FOUND)
+        serializer = RequestUpdateSerializer(requests, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
 
-    def post(self, request, *args, **kwargs):
+    @action(methods=["POST"], detail=False, permission_classes=[IsAuthenticated, OwnCompanyPermission],
+            url_path="remove-user")
+    def remove_user(self, request, *args, **kwargs):
         owner = request.user
         user_id = request.data.get("user")
         company_id = request.data.get("company")
@@ -90,24 +104,16 @@ class RemoveUser(APIView):
         user.save()
         return Response({"detail": _("User removed successfully")}, status=HTTP_200_OK)
 
-
-class GetCompanyMembers(ListAPIView):
-    serializer_class = UserListSerializer
-    permission_classes = [IsAuthenticated, OwnCompanyPermission]
-    pagination_class = None
-
-    def get_queryset(self):
-        company_id = self.request.query_params.get("company_id")
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticated, OwnCompanyPermission],
+            url_path="members")
+    def get_members(self, request, *args, **kwargs):
+        company_id = self.request.query_params.get("company")
         if not company_id:
-            raise ValueError("Company ID is required")
+            raise ValidationError({"detail": "Company ID is required"})
         company = get_object_or_404(Company, id=company_id)
-        self.check_object_permissions(self.request, company)
-        return company.members.all()
-
-    def list(self, request, *args, **kwargs):
-        try:
-            queryset = self.get_queryset()
-            serializer = self.get_serializer(queryset, many=True)
-            return Response(serializer.data)
-        except ValueError as e:
-            return Response({"detail": str(e)}, status=HTTP_400_BAD_REQUEST)
+        if company.owner != request.user:
+            raise PermissionDenied({"detail": "You do not have permission to perform this action."})
+        self.check_object_permissions(request, company)
+        members = company.members.all()
+        serializer = UserListSerializer(members, many=True)
+        return Response(serializer.data)

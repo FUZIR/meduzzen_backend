@@ -24,7 +24,7 @@ class LeaveCompanyTest(BaseTestCase):
         self.assertIsNotNone(token)
         self.assertTrue(self.company.members.filter(id=self.member.id).exists())
 
-        leave_response = self.client.post("/api/users/company/leave/", HTTP_AUTHORIZATION=f"Token {token}")
+        leave_response = self.client.post("/api/users/leave/", HTTP_AUTHORIZATION=f"Token {token}")
         self.assertEqual(leave_response.status_code, 200)
         self.assertIn("detail", leave_response.data)
         self.assertEqual(leave_response.data["detail"], "You successfully leave company")

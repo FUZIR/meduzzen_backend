@@ -61,7 +61,7 @@ class RequestAcceptationTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        accept_response = self.client.patch("/api/user-requests/accept/", {
+        accept_response = self.client.patch("/api/requests/request-accept/", {
             "id": self.acceptation_request.id
         }, content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}", follow=True)
 
@@ -76,7 +76,7 @@ class RequestAcceptationTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        accept_response = self.client.patch("/api/user-requests/accept/", {"id": 9999}, content_type="application/json",
+        accept_response = self.client.patch("/api/requests/request-accept/", {"id": 9999}, content_type="application/json",
                                             HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(accept_response.status_code, 404)
 
@@ -84,7 +84,7 @@ class RequestAcceptationTests(BaseTestCase):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
 
-        accept_response = self.client.patch("/api/user-requests/accept/", {"id": self.acceptation_request.id},
+        accept_response = self.client.patch("/api/requests/request-accept/", {"id": self.acceptation_request.id},
                                             content_type="application/json",
                                             HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(accept_response.status_code, 403)
@@ -102,7 +102,7 @@ class RequestRejectionTests(BaseTestCase):
         self.assertIsNotNone(token)
 
         reject_response = self.client.patch(
-            "/api/user-requests/reject/",
+            "/api/requests/request-reject/",
             {"id": self.rejection_request.id},
             content_type="application/json",
             HTTP_AUTHORIZATION=f"Token {token}",
@@ -119,7 +119,7 @@ class RequestRejectionTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        reject_response = self.client.patch("/api/user-requests/reject/", {"id": 10000},
+        reject_response = self.client.patch("/api/requests/request-reject/", {"id": 10000},
                                             content_type="application/json",
                                             HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(reject_response.status_code, 404)
@@ -128,7 +128,7 @@ class RequestRejectionTests(BaseTestCase):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
 
-        reject_response = self.client.patch("/api/user-requests/reject/", {"id": self.rejection_request.id},
+        reject_response = self.client.patch("/api/requests/request-reject/", {"id": self.rejection_request.id},
                                             content_type="application/json",
                                             HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(reject_response.status_code, 403)
@@ -145,7 +145,7 @@ class RequestCancelationTests(BaseTestCase):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
 
-        revoke_response = self.client.patch("/api/user-requests/cancel/", {
+        revoke_response = self.client.patch("/api/requests/request-cancel/", {
             "id": self.cancel_request.id
         }, content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}", follow=True)
 
@@ -160,7 +160,7 @@ class RequestCancelationTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        revoke_response = self.client.patch("/api/user-requests/cancel/", {}, content_type="application/json",
+        revoke_response = self.client.patch("/api/requests/request-cancel/", {}, content_type="application/json",
                                             HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(revoke_response.status_code, 404)
 
@@ -188,22 +188,3 @@ class GetUserRequestsTest(BaseTestCase):
 
         get_response = self.client.get("/api/requests/", HTTP_AUTHORIZATION=f"Token {token}")
         self.assertEqual(get_response.status_code, 404)
-
-
-class GetCompanyRequests(BaseTestCase):
-    def setUp(self):
-        super().setUp()
-        self.request = RequestModel.objects.create(company=self.company, user=self.user)
-        self.assertEqual(RequestModel.objects.count(), 1)
-
-    def test_get_requests_success(self):
-        token = self.login_user(self.owner.email, "testpassword")
-        self.assertIsNotNone(token)
-        get_response = self.client.get("/api/company-requests/list/", query_params={'company': self.company.id},
-                                       HTTP_AUTHORIZATION=f"Token {token}")
-        self.assertEqual(get_response.status_code, 200)
-        self.assertEqual(len(get_response.data), 1)
-        self.assertEqual(get_response.data[0]['id'], self.request.id)
-        self.assertEqual(get_response.data[0]['user'], self.request.user.id)
-        self.assertEqual(get_response.data[0]['company'], self.request.company.id)
-        self.assertEqual(get_response.data[0]['status'], RequestStatus.PENDING)
