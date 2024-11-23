@@ -76,7 +76,8 @@ class RequestAcceptationTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        accept_response = self.client.patch("/api/requests/request-accept/", {"id": 9999}, content_type="application/json",
+        accept_response = self.client.patch("/api/requests/request-accept/", {"id": 9999},
+                                            content_type="application/json",
                                             HTTP_AUTHORIZATION=f"Token {token}", follow=True)
         self.assertEqual(accept_response.status_code, 404)
 
@@ -141,7 +142,7 @@ class RequestCancelationTests(BaseTestCase):
         super().setUp()
         self.cancel_request = RequestModel.objects.create(user=self.user, company=self.company)
 
-    def test_cancel_invitation(self):
+    def test_cancel_request(self):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
 
@@ -156,7 +157,7 @@ class RequestCancelationTests(BaseTestCase):
         self.cancel_request.refresh_from_db()
         self.assertEqual(self.cancel_request.status, RequestStatus.CANCELED)
 
-    def test_cancel_invitation_not_found(self):
+    def test_cancel_request_not_found(self):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
@@ -165,7 +166,7 @@ class RequestCancelationTests(BaseTestCase):
         self.assertEqual(revoke_response.status_code, 404)
 
 
-class GetUserRequestsTest(BaseTestCase):
+class GetUserRequestsTests(BaseTestCase):
     def setUp(self):
         super().setUp()
         self.request = RequestModel.objects.create(company=self.company, user=self.user)
@@ -188,3 +189,22 @@ class GetUserRequestsTest(BaseTestCase):
 
         get_response = self.client.get("/api/requests/", HTTP_AUTHORIZATION=f"Token {token}")
         self.assertEqual(get_response.status_code, 404)
+
+
+class GetCompanyRequestsTests(BaseTestCase):
+    def setUp(self):
+        super().setUp()
+        self.request = RequestModel.objects.create(company=self.company, user=self.user)
+        self.assertEqual(RequestModel.objects.count(), 1)
+
+    def test_get_requests_success(self):
+        token = self.login_user(self.owner.email, "testpassword")
+        self.assertIsNotNone(token)
+        get_response = self.client.get("/api/requests/request-list/", query_params={'company': self.company.id},
+                                       HTTP_AUTHORIZATION=f"Token {token}")
+        self.assertEqual(get_response.status_code, 200)
+        self.assertEqual(len(get_response.data), 1)
+        self.assertEqual(get_response.data[0]['id'], self.request.id)
+        self.assertEqual(get_response.data[0]['user'], self.request.user.id)
+        self.assertEqual(get_response.data[0]['company'], self.request.company.id)
+        self.assertEqual(get_response.data[0]['status'], RequestStatus.PENDING)

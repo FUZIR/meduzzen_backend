@@ -30,7 +30,6 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "password": {"write_only": True},
             "is_active": {"required": False},
-            "visible": {"read_only": True},
             "company": {"read_only": True},
             "country": {"read_only": True},
             "id": {"read_only": True},
@@ -47,11 +46,6 @@ class UserSerializer(serializers.ModelSerializer):
         user.save()
         return user
 
-    def update(self, instance, validated_data):
-        for attr, value in validated_data.items():
-            setattr(instance, attr, value)
-        instance.save()
-        return instance
 
 
 class UserListSerializer(serializers.ModelSerializer):

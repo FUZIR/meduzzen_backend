@@ -1,6 +1,5 @@
 from core.request.tests import BaseTestCase
 from core.user.models import CustomUser
-from core.request.models import RequestModel, RequestStatus
 
 
 # Create your tests here.
@@ -102,22 +101,3 @@ class RemoveUserTest(BaseTestCase):
             HTTP_AUTHORIZATION=f"Token {token}"
         )
         self.assertEqual(remove_response.status_code, 404)
-
-
-class GetCompanyRequests(BaseTestCase):
-    def setUp(self):
-        super().setUp()
-        self.request = RequestModel.objects.create(company=self.company, user=self.user)
-        self.assertEqual(RequestModel.objects.count(), 1)
-
-    def test_get_requests_success(self):
-        token = self.login_user(self.owner.email, "testpassword")
-        self.assertIsNotNone(token)
-        get_response = self.client.get("/api/companies/request-list/", query_params={'company': self.company.id},
-                                       HTTP_AUTHORIZATION=f"Token {token}")
-        self.assertEqual(get_response.status_code, 200)
-        self.assertEqual(len(get_response.data), 1)
-        self.assertEqual(get_response.data[0]['id'], self.request.id)
-        self.assertEqual(get_response.data[0]['user'], self.request.user.id)
-        self.assertEqual(get_response.data[0]['company'], self.request.company.id)
-        self.assertEqual(get_response.data[0]['status'], RequestStatus.PENDING)

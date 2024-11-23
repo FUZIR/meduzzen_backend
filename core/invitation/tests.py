@@ -141,7 +141,7 @@ class GetInvitedUsersTests(BaseTestCase):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        get_response = self.client.get("/api/invitations/",{"company": self.second_company.id},
+        get_response = self.client.get("/api/invitations/get-invitations/",{"company": self.second_company.id},
                                         content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}",
                                         follow=True)
         self.assertEqual(get_response.status_code, 200)
@@ -154,7 +154,9 @@ class GetInvitedUsersTests(BaseTestCase):
     def test_get_invited_users_no_permission(self):
         token = self.login_user(self.user.email, "testpassword")
         self.assertIsNotNone(token)
-        get_response = self.client.get("/api/invitations/", HTTP_AUTHORIZATION=f"Token {token}")
+        get_response = self.client.get("/api/invitations/get-invitations/", {"company": self.second_company.id},
+                                       content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}",
+                                       follow=True)
         self.assertEqual(get_response.status_code, 403)
         self.assertIn("detail", get_response.data)
         self.assertEqual(get_response.data["detail"], "You do not have permission to perform this action.")
