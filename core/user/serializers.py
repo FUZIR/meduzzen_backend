@@ -31,7 +31,6 @@ class UserSerializer(serializers.ModelSerializer):
             "password": {"write_only": True},
             "is_active": {"required": False},
             "company": {"read_only": True},
-            "country": {"read_only": True},
             "id": {"read_only": True},
         }
 

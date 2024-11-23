@@ -12,6 +12,8 @@ class Company(TimeStampedModel):
     image_path = models.URLField(blank=True)
     owner = models.ForeignKey("user.CustomUser", blank=False, on_delete=models.SET_NULL, null=True,
                               related_name="owned_companies")
+    company_site = models.URLField(blank=True)
+    company_address = models.CharField(max_length=255, blank=True)
 
     class Meta:
         db_table = "companies"

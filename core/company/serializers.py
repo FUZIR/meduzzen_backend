@@ -16,6 +16,8 @@ class CompanySerializer(serializers.ModelSerializer):
             "name",
             "description",
             "company_email",
+            "company_site",
+            "company_address",
             "image_path",
             "owner",
             "members",
@@ -42,7 +44,6 @@ class CreateCompanySerializer(serializers.ModelSerializer):
             name=validated_data["name"],
             description=validated_data["description"],
             company_email=validated_data["company_email"],
-            image_path=validated_data["image_path"],
             owner=user,
         )
         company.save()
@@ -57,6 +58,7 @@ class CompanyListSerializer(serializers.ModelSerializer):
             "name",
             "description",
             "company_email",
+            "image_path",
             "owner",
         ]
         extra_kwargs = {field: {"read_only": True} for field in fields}

@@ -9,7 +9,11 @@ from .models import CustomUser
 class OwnProfilePermission(permissions.BasePermission):
     def __check_first_model_object_permission(self, model, request, view):
         try:
-            obj_id = request.data.get("id") or request.query_params.get("id")
+            obj_id = (
+                    request.data.get("id")
+                    or request.query_params.get("id")
+                    or view.kwargs.get("pk")
+            )
             obj = model.objects.filter(id=obj_id).first()
             if not obj:
                 raise NotFound
@@ -39,6 +43,8 @@ class OwnProfilePermission(permissions.BasePermission):
                         and user_id
                         and request.user.id == int(user_id)
                 )
+            elif view.action in ["update", "partial_update"]:
+                return True
             elif view.action in ["invitation_reject", "invitation_accept", "get_invitations"]:
                 return self.__check_first_model_object_permission(InvitationModel, request, view)
             elif view.action in ["request_cancel"]:
