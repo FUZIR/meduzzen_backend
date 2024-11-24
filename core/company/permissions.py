@@ -57,4 +57,9 @@ class OwnCompanyPermission(permissions.BasePermission):
                     except Company.DoesNotExist:
                         return False
                 return False
+            elif view.action in ["destroy", "partial_update", "update"]:
+                company_id = view.kwargs.get("pk")
+                if company_id:
+                    return self.__check_is_owner(request, company_id)
+                return False
         return True
