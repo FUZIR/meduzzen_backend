@@ -13,6 +13,7 @@ from core.company.permissions import OwnCompanyPermission
 from core.request.serializers import RequestCreateSerializer, RequestUpdateSerializer
 from core.request.models import RequestModel, RequestStatus
 from core.user.permissions import OwnProfilePermission
+from core.role.models import RoleModel
 
 
 class RequestViewSet(ModelViewSet):
@@ -55,6 +56,7 @@ class RequestViewSet(ModelViewSet):
 
             user.company = company
             user.save()
+            RoleModel.objects.create(user=user, company=company)
         return Response({"detail": _("Request accepted successfully")}, status=HTTP_200_OK)
 
     @action(methods=["PATCH"], detail=False, url_path="request-reject",

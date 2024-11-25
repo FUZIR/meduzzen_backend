@@ -1,3 +1,4 @@
+
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -13,6 +14,7 @@ from core.user.serializers import UserListSerializer
 from core.company.models import Company
 from core.company.permissions import OwnCompanyPermission
 from core.company.serializers import CompanyListSerializer, CompanySerializer, CreateCompanySerializer
+from core.role.models import RoleModel, UserRoles
 
 
 # Create your views here.
@@ -38,7 +40,8 @@ class CompanyViewSet(ModelViewSet):
     def create(self, request: Request, *args, **kwargs) -> Response:
         serializer = CreateCompanySerializer(data=request.data, context={"request": request})
         if serializer.is_valid(raise_exception=True):
-            serializer.save()
+            company = serializer.save()
+            RoleModel.objects.create(user=request.user, company=company, role=UserRoles.OWNER)
             return Response(serializer.data, status=HTTP_201_CREATED)
         else:
             return Response(status=HTTP_400_BAD_REQUEST)
@@ -86,6 +89,9 @@ class CompanyViewSet(ModelViewSet):
 
         if user.company != company:
             return Response({"detail": _("User is not a member of this company")}, status=HTTP_400_BAD_REQUEST)
+
+        RoleModel.objects.filter(user=user, company=company).delete()
+
         user.company = None
         user.save()
         return Response({"detail": _("User removed successfully")}, status=HTTP_200_OK)
@@ -103,3 +109,31 @@ class CompanyViewSet(ModelViewSet):
         members = company.members.all()
         serializer = UserListSerializer(members, many=True)
         return Response(serializer.data)
+
+    @action(methods=["POST"], detail=False, url_path="appoint_admin",
+            permission_classes=[IsAuthenticated, OwnCompanyPermission])
+    def appoint_admin(self, request, *args, **kwargs):
+        owner = request.user
+        user_id = request.data.get("user")
+        company_id = request.data.get("company")
+
+        company = get_object_or_404(Company, id=company_id, owner=owner)
+        user = get_object_or_404(CustomUser, id=user_id)
+        user_role = get_object_or_404(RoleModel, user=user, company=company)
+        user_role.role = UserRoles.ADMIN
+        user_role.save()
+        return Response({"detail": "Admin successfully added"}, status=HTTP_200_OK)
+
+    @action(methods=["POST"], detail=False, url_path="remove_admin",
+            permission_classes=[IsAuthenticated, OwnCompanyPermission])
+    def remove_admin(self, request, *args, **kwargs):
+        owner = request.user
+        user_id = request.data.get("user")
+        company_id = request.data.get("company")
+
+        company = get_object_or_404(Company, id=company_id, owner=owner)
+        user = get_object_or_404(CustomUser, id=user_id)
+        user_role = get_object_or_404(RoleModel, user=user, company=company)
+        user_role.role = UserRoles.MEMBER
+        user_role.save()
+        return Response({"detail": "Admin removed successfully"}, status=HTTP_200_OK)
