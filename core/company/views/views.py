@@ -1,13 +1,18 @@
+from rest_framework.decorators import action
+from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet
+from django.utils.translation import gettext_lazy as _
 
-from .models import Company
-from .permissions import OwnCompanyPermission
-from .serializers import CompanyListSerializer, CompanySerializer, CreateCompanySerializer
+from core.user.models import CustomUser
+from core.user.serializers import UserListSerializer
+from core.company.models import Company
+from core.company.permissions import OwnCompanyPermission
+from core.company.serializers import CompanyListSerializer, CompanySerializer, CreateCompanySerializer
 
 
 # Create your views here.
@@ -31,7 +36,7 @@ class CompanyViewSet(ModelViewSet):
             return [IsAuthenticated()]
 
     def create(self, request: Request, *args, **kwargs) -> Response:
-        serializer = CreateCompanySerializer(data=request.data)
+        serializer = CreateCompanySerializer(data=request.data, context={"request": request})
         if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=HTTP_201_CREATED)
@@ -68,3 +73,33 @@ class CompanyViewSet(ModelViewSet):
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
         return Response(status=HTTP_200_OK)
+
+    @action(methods=["POST"], detail=False, permission_classes=[IsAuthenticated, OwnCompanyPermission],
+            url_path="remove-user")
+    def remove_user(self, request, *args, **kwargs):
+        owner = request.user
+        user_id = request.data.get("user")
+        company_id = request.data.get("company")
+
+        company = get_object_or_404(Company, id=company_id, owner=owner)
+        user = get_object_or_404(CustomUser, id=user_id)
+
+        if user.company != company:
+            return Response({"detail": _("User is not a member of this company")}, status=HTTP_400_BAD_REQUEST)
+        user.company = None
+        user.save()
+        return Response({"detail": _("User removed successfully")}, status=HTTP_200_OK)
+
+    @action(methods=["GET"], detail=False, permission_classes=[IsAuthenticated, OwnCompanyPermission],
+            url_path="members")
+    def get_members(self, request, *args, **kwargs):
+        company_id = self.request.query_params.get("company")
+        if not company_id:
+            raise ValidationError({"detail": _("Company ID is required")})
+        company = get_object_or_404(Company, id=company_id)
+        if company.owner != request.user:
+            raise PermissionDenied({"detail": _("You do not have permission to perform this action.")})
+        self.check_object_permissions(request, company)
+        members = company.members.all()
+        serializer = UserListSerializer(members, many=True)
+        return Response(serializer.data)

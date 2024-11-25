@@ -1298,3 +1298,63 @@ msgstr "Користувач з вказаною електронною адре
 
 msgid "Unable to create account."
 msgstr "Неможливо створити обліковий запис."
+
+msgid "Company not found"
+msgstr "Компанія не знайдена"
+
+msgid "You are not company owner"
+msgstr "Ви не є власником компанії"
+
+msgid "Invitation not found"
+msgstr "Запрошення не знайдено"
+
+msgid "Request not found"
+msgstr "Запит не знайдено"
+
+msgid "You can't send request by another user"
+msgstr "Ви не можете надіслати запит від імені іншого користувача"
+
+msgid "User fields is required"
+msgstr "Поле користувача є обов'язковим"
+
+msgid "You successfully leave company"
+msgstr "Ви успішно залишили компанію"
+
+msgid "You are not a member of any company"
+msgstr "Ви не є членом жодної компанії"
+
+msgid "User deleted successfully"
+msgstr "Користувача успішно видалено"
+
+msgid "User is not a member of this company"
+msgstr "Користувач не є членом цієї компанії"
+
+msgid "There is no requests"
+msgstr "Немає запитів"
+
+msgid "Request accepted successfully"
+msgstr "Запит успішно прийнято"
+
+msgid "Request rejected successfully"
+msgstr "Запит успішно відхилено"
+
+msgid "Request canceled successfully"
+msgstr "Запит успішно скасовано"
+
+msgid "Invitation accepted successfully"
+msgstr "Запрошення успішно прийнято"
+
+msgid "Invitation rejected successfully"
+msgstr "Запрошення успішно відхилено"
+
+msgid "Invitation revoked successfully"
+msgstr "Запрошення успішно відкликано"
+
+msgid "User removed successfully"
+msgstr "Користувача успішно видалено"
+
+msgid "Company ID is required"
+msgstr "Потрібно вказати ID компанії"
+
+msgid "You do not have permission to perform this action."
+msgstr "У вас немає дозволу на виконання цієї дії."

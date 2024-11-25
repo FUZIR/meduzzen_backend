@@ -1,8 +1,6 @@
 from django.contrib.auth.models import AbstractUser
 from django.db import models
-from django.db.models import SET_NULL
 
-from core.company.models import Company
 from core.utils.models import TimeStampedModel
 
 
@@ -10,13 +8,13 @@ from core.utils.models import TimeStampedModel
 class CustomUser(AbstractUser, TimeStampedModel):
     image_path = models.URLField(blank=True)
     email = models.EmailField(unique=True)
-    company = models.ForeignKey(Company, on_delete=SET_NULL, null=True, related_name='members')
+    company = models.ForeignKey('company.Company', on_delete=models.SET_NULL, null=True, related_name='members')
     description = models.CharField(max_length=255, blank=True)
     country = models.CharField(max_length=50, blank=True)
     visible = models.BooleanField(default=True, blank=False)
 
     USERNAME_FIELD = "email"
-    REQUIRED_FIELDS = ["username", "password", "image_path"]
+    REQUIRED_FIELDS = ["username", "password"]
 
     class Meta:
         db_table = "users"
