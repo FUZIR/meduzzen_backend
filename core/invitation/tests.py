@@ -2,6 +2,7 @@ from core.company.models import Company
 from core.invitation.models import InvitationModel
 from core.invitation.models import InvitationStatus
 from core.request.tests import BaseTestCase
+from core.role.models import RoleModel, UserRoles
 
 
 class InvitationCreationTests(BaseTestCase):
@@ -136,14 +137,15 @@ class GetInvitedUsersTests(BaseTestCase):
         self.second_company = Company.objects.create(name="NewCompany13", company_email="email@gmail.com",
                                                      owner=self.owner, image_path="", description="description")
         self.invitation = InvitationModel.objects.create(user=self.user, company=self.second_company)
+        RoleModel.objects.create(user=self.owner, company=self.second_company, role=UserRoles.OWNER)
 
     def test_get_invited_users_success(self):
         token = self.login_user(self.owner.email, "testpassword")
         self.assertIsNotNone(token)
 
-        get_response = self.client.get("/api/invitations/get-invitations/",{"company": self.second_company.id},
-                                        content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}",
-                                        follow=True)
+        get_response = self.client.get("/api/invitations/get-invitations/", {"company": self.second_company.id},
+                                       content_type="application/json", HTTP_AUTHORIZATION=f"Token {token}",
+                                       follow=True)
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(len(get_response.data), 1)
         self.assertEqual(get_response.data[0]['id'], self.invitation.id)

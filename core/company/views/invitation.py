@@ -12,6 +12,7 @@ from core.invitation.models import InvitationModel
 from core.invitation.models import InvitationStatus
 from core.user.permissions import OwnProfilePermission
 from core.company.permissions import OwnCompanyPermission
+from core.role.models import RoleModel
 
 
 class InvitationViewSet(ModelViewSet):
@@ -46,6 +47,8 @@ class InvitationViewSet(ModelViewSet):
 
             user.company = company
             user.save()
+
+            RoleModel.objects.create(user=user, company=company)
         return Response({"detail": _("Invitation accepted successfully")}, status=HTTP_200_OK)
 
     @action(methods=["PATCH"], detail=False, permission_classes=[IsAuthenticated, OwnProfilePermission],

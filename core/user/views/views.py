@@ -11,6 +11,7 @@ from core.user.models import CustomUser as User
 from core.user.permissions import OwnProfilePermission
 from core.user.serializers import UserSerializer
 from core.user.serializers import UserListSerializer
+from core.role.models import RoleModel
 
 
 # Create your views here.
@@ -58,6 +59,7 @@ class UserViewSet(DjoserViewSet):
         if not user.company:
             return Response({"detail": _("You are not a member of any company")}, status=HTTP_400_BAD_REQUEST)
 
+        RoleModel.objects.filter(user=user, company=user.company).delete()
         user.company = None
         user.save()
         return Response({"detail": _("You successfully leave company")}, status=HTTP_200_OK)
