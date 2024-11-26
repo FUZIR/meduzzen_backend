@@ -1,4 +1,3 @@
-
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError, PermissionDenied
 from rest_framework.generics import get_object_or_404
@@ -138,14 +137,16 @@ class CompanyViewSet(ModelViewSet):
         user_role.save()
         return Response({"detail": "Admin removed successfully"}, status=HTTP_200_OK)
 
-    @action(methods=["GET"], detail=False, url_path="admins", permission_classes=[IsAuthenticated, OwnCompanyPermission])
+    @action(methods=["GET"], detail=False, url_path="admins",
+            permission_classes=[IsAuthenticated, OwnCompanyPermission])
     def get_admins(self, request, *args, **kwargs):
         company_id = request.query_params.get("company")
         if not company_id:
             return Response({"error": "Company ID is required."}, status=HTTP_400_BAD_REQUEST)
 
         company = get_object_or_404(Company, id=company_id)
-        user_with_role = RoleModel.objects.filter(role=UserRoles.ADMIN, company=company)
+        user_with_role = (RoleModel.objects.filter(role=UserRoles.ADMIN, company=company).select_related("user")
+                          .select_related("company"))
         users = [role.user for role in user_with_role]
         serializer = UserListSerializer(users, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
