@@ -110,7 +110,7 @@ class CompanyViewSet(ModelViewSet):
         serializer = UserListSerializer(members, many=True)
         return Response(serializer.data)
 
-    @action(methods=["POST"], detail=False, url_path="appoint_admin",
+    @action(methods=["POST"], detail=False, url_path="appoint-admin",
             permission_classes=[IsAuthenticated, OwnCompanyPermission])
     def appoint_admin(self, request, *args, **kwargs):
         owner = request.user
@@ -124,7 +124,7 @@ class CompanyViewSet(ModelViewSet):
         user_role.save()
         return Response({"detail": "Admin successfully added"}, status=HTTP_200_OK)
 
-    @action(methods=["POST"], detail=False, url_path="remove_admin",
+    @action(methods=["POST"], detail=False, url_path="remove-admin",
             permission_classes=[IsAuthenticated, OwnCompanyPermission])
     def remove_admin(self, request, *args, **kwargs):
         owner = request.user
@@ -137,3 +137,15 @@ class CompanyViewSet(ModelViewSet):
         user_role.role = UserRoles.MEMBER
         user_role.save()
         return Response({"detail": "Admin removed successfully"}, status=HTTP_200_OK)
+
+    @action(methods=["GET"], detail=False, url_path="admins", permission_classes=[IsAuthenticated, OwnCompanyPermission])
+    def get_admins(self, request, *args, **kwargs):
+        company_id = request.query_params.get("company")
+        if not company_id:
+            return Response({"error": "Company ID is required."}, status=HTTP_400_BAD_REQUEST)
+
+        company = get_object_or_404(Company, id=company_id)
+        user_with_role = RoleModel.objects.filter(role=UserRoles.ADMIN, company=company)
+        users = [role.user for role in user_with_role]
+        serializer = UserListSerializer(users, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)

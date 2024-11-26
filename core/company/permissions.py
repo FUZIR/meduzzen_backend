@@ -31,7 +31,7 @@ class OwnCompanyPermission(permissions.BasePermission):
 
     def has_permission(self, request, view):
         if hasattr(view, "action"):
-            if view.action in ["create", "retrieve", "list", "get_members", "appoint_admin", "remove_admin"]:
+            if view.action in ["create", "retrieve", "list", "get_members", "appoint-admin", "remove-admin", "admins"]:
                 company_id = request.data.get("company") or request.query_params.get("company")
                 return self.__check_is_owner(request, company_id)
 
