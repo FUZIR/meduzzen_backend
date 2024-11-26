@@ -145,8 +145,7 @@ class CompanyViewSet(ModelViewSet):
             return Response({"error": "Company ID is required."}, status=HTTP_400_BAD_REQUEST)
 
         company = get_object_or_404(Company, id=company_id)
-        user_with_role = (RoleModel.objects.filter(role=UserRoles.ADMIN, company=company).select_related("user")
-                          .select_related("company"))
+        user_with_role = (RoleModel.objects.filter(role=UserRoles.ADMIN, company=company).select_related("user"))
         users = [role.user for role in user_with_role]
         serializer = UserListSerializer(users, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
