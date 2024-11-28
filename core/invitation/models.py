@@ -14,7 +14,7 @@ class InvitationStatus(models.TextChoices):
 
 # Create your models here.
 class InvitationModel(TimeStampedModel):
-    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=False)
+    company = models.ForeignKey(Company, on_delete=models.CASCADE, blank=False, related_name="invitations")
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, related_name="invitations")
     status = models.CharField(choices=InvitationStatus.choices, default=InvitationStatus.PENDING, blank=False)
 

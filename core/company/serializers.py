@@ -1,14 +1,12 @@
 from django.db.models import QuerySet
 from rest_framework import serializers
 from core.user.serializers import UserListSerializer
-from core.request.serializers import RequestUpdateSerializer
 from .models import Company
 
 
 class CompanySerializer(serializers.ModelSerializer):
     owner = UserListSerializer(many=False, read_only=True)
     members = UserListSerializer(many=True, read_only=True)
-    requests = RequestUpdateSerializer(many=True, read_only=True)
 
     class Meta:
         model = Company
@@ -21,7 +19,6 @@ class CompanySerializer(serializers.ModelSerializer):
             "image_path",
             "owner",
             "members",
-            "requests",
             "created_at",
             "updated_at",
         ]

@@ -19,6 +19,11 @@ class InvitationViewSet(ModelViewSet):
     permission_classes = [IsAuthenticated, OwnCompanyPermission]
     queryset = InvitationModel.objects.all()
 
+    def get_permissions(self):
+        if self.action == "list":
+            return [IsAuthenticated(), OwnProfilePermission()]
+        return super().get_permissions()
+
     def get_serializer_class(self):
         if self.action == "create":
             return InvitationCreateSerializer
@@ -28,12 +33,19 @@ class InvitationViewSet(ModelViewSet):
 
     def get_queryset(self):
         if self.action == "list":
-            return InvitationModel.objects.filter(user=self.request.user)
+            return InvitationModel.objects.filter(user=self.request.user).select_related("company")
         elif self.action in ["invitation_accept", "invitation_reject", "invitation_revoke"]:
             return InvitationModel.objects.filter(status=InvitationStatus.PENDING, id=self.request.data.get("id"))
         elif self.action == "get_invitations":
             return InvitationModel.objects.filter(company_id=self.request.query_params.get("company"))
         return super().get_queryset()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.get_queryset()
+        if not queryset.exists():
+            return Response({"detail": _("There is no invitations")}, status=HTTP_404_NOT_FOUND)
+        serializer = self.get_serializer(queryset, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
 
     @action(methods=["PATCH"], detail=False, permission_classes=[IsAuthenticated, OwnProfilePermission],
             url_path="invitation-accept")

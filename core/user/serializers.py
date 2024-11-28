@@ -1,13 +1,10 @@
 from django.db.models import QuerySet
 from rest_framework import serializers
 
-from core.invitation.serializers import InvitationUpdateSerializer
 from .models import CustomUser as User
 
 
 class UserSerializer(serializers.ModelSerializer):
-    invitations = InvitationUpdateSerializer(many=True, read_only=True)
-
     class Meta:
         model = User
         fields = [
@@ -19,7 +16,6 @@ class UserSerializer(serializers.ModelSerializer):
             "password",
             "description",
             "company",
-            "invitations",
             "country",
             "visible",
             "image_path",
