@@ -149,8 +149,8 @@ class GetInvitedUsersTests(BaseTestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(len(get_response.data), 1)
         self.assertEqual(get_response.data[0]['id'], self.invitation.id)
-        self.assertEqual(get_response.data[0]['user'], self.invitation.user.id)
-        self.assertEqual(get_response.data[0]['company'], self.invitation.company.id)
+        self.assertEqual(get_response.data[0]['user']['id'], self.invitation.user.id)
+        self.assertEqual(get_response.data[0]['company']['id'], self.invitation.company.id)
         self.assertEqual(get_response.data[0]['status'], InvitationStatus.PENDING)
 
     def test_get_invited_users_no_permission(self):

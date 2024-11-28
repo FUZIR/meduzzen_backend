@@ -181,8 +181,8 @@ class GetUserRequestsTests(BaseTestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(len(get_response.data), 1)
         self.assertEqual(get_response.data[0]['id'], self.request.id)
-        self.assertEqual(get_response.data[0]['user'], self.request.user.id)
-        self.assertEqual(get_response.data[0]['company'], self.request.company.id)
+        self.assertEqual(get_response.data[0]['user']['id'], self.request.user.id)
+        self.assertEqual(get_response.data[0]['company']['id'], self.request.company.id)
         self.assertEqual(get_response.data[0]['status'], RequestStatus.PENDING)
 
     def test_get_requests_company_not_found(self):
@@ -207,6 +207,6 @@ class GetCompanyRequestsTests(BaseTestCase):
         self.assertEqual(get_response.status_code, 200)
         self.assertEqual(len(get_response.data), 1)
         self.assertEqual(get_response.data[0]['id'], self.request.id)
-        self.assertEqual(get_response.data[0]['user'], self.request.user.id)
-        self.assertEqual(get_response.data[0]['company'], self.request.company.id)
+        self.assertEqual(get_response.data[0]['user']['id'], self.request.user.id)
+        self.assertEqual(get_response.data[0]['company']['id'], self.request.company.id)
         self.assertEqual(get_response.data[0]['status'], RequestStatus.PENDING)
