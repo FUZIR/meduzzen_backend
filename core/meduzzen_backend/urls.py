@@ -26,4 +26,5 @@ urlpatterns = [
     path("api/", include("core.user.urls")),
     path("auth/", include("djoser.urls.authtoken")),
     path("api/", include("core.company.urls")),
+    path("api/", include("core.quiz.urls"))
 ]
