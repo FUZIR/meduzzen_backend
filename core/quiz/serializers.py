@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
@@ -66,8 +67,9 @@ class QuizSerializer(serializers.ModelSerializer):
             question_models.append(quest)
             answer_models.extend(AnswerModel(question=quest, **answer) for answer in answers_data)
 
-        QuestionModel.objects.bulk_create(question_models)
-        AnswerModel.objects.bulk_create(answer_models)
+        with transaction.atomic():
+            QuestionModel.objects.bulk_create(question_models)
+            AnswerModel.objects.bulk_create(answer_models)
         return quiz
 
     def update(self, instance, validated_data):
@@ -114,10 +116,15 @@ class QuizSerializer(serializers.ModelSerializer):
 
         QuestionModel.objects.filter(id__in=existing_questions.keys()).delete()
 
-        QuestionModel.objects.bulk_create(questions_for_create)
-        AnswerModel.objects.bulk_create(answers_for_create)
-        QuestionModel.objects.bulk_update(questions_for_update, ["text"])
-        AnswerModel.objects.bulk_update(answers_for_update, ["text", "is_correct"])
+        with transaction.atomic():
+            if questions_for_create:
+                QuestionModel.objects.bulk_create(questions_for_create)
+            if answers_for_create:
+                AnswerModel.objects.bulk_create(answers_for_create)
+            if questions_for_update:
+                QuestionModel.objects.bulk_update(questions_for_update, ["text"])
+            if answers_for_update:
+                AnswerModel.objects.bulk_update(answers_for_update, ["text", "is_correct"])
         return instance
 
     def validate(self, data):
