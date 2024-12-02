@@ -9,24 +9,13 @@ class AnswerSerializer(serializers.ModelSerializer):
     class Meta:
         model = AnswerModel
         fields = [
-            "answer",
-            "is_correct"
-        ]
-        extra_kwargs = {
-            "question": {"read_only": True}
-        }
-
-
-class GetAnswerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = AnswerModel
-        fields = [
             "id",
-            "answer",
+            "text",
             "is_correct"
         ]
         extra_kwargs = {
-            "question": {"read_only": True}
+            "question": {"read_only": True},
+            "id": {"read_only": True}
         }
 
 
@@ -36,27 +25,19 @@ class QuestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuestionModel
         fields = [
-            "question",
+            "id",
+            "text",
             "answers"
         ]
+        extra_kwargs = {
+            "id": {"read_only": True}
+        }
 
     def validate_answers(self, answers):
-        correct_answers = [answers for answer in answers if answer["is_correct"]]
+        correct_answers = [answer for answer in answers if answer["is_correct"]]
         if len(correct_answers) != 1:
             return ValidationError(_("There must be only one correct answer."))
         return answers
-
-
-class GetQuestionSerializer(serializers.ModelSerializer):
-    answers = GetAnswerSerializer(many=True)
-
-    class Meta:
-        model = QuestionModel
-        fields = [
-            "id",
-            "question",
-            "answers"
-        ]
 
 
 class QuizSerializer(serializers.ModelSerializer):
@@ -65,6 +46,7 @@ class QuizSerializer(serializers.ModelSerializer):
     class Meta:
         model = QuizModel
         fields = [
+            "id",
             "title",
             "description",
             "frequency",
@@ -73,16 +55,19 @@ class QuizSerializer(serializers.ModelSerializer):
         ]
 
     def create(self, validated_data):
-        questions = validated_data.pop("questions", [])
+        questions_data = validated_data.pop("questions", [])
 
         quiz = QuizModel.objects.create(**validated_data)
+        question_models = []
+        answer_models = []
+        for question in questions_data:
+            answers_data = question.pop("answers", [])
+            quest = QuestionModel(quiz=quiz, **question)
+            question_models.append(quest)
+            answer_models.extend(AnswerModel(question=quest, **answer) for answer in answers_data)
 
-        for question in questions:
-            answers = question.pop("answers", [])
-            quest = QuestionModel.objects.create(quiz=quiz, **question)
-            for answer in answers:
-                AnswerModel.objects.create(question=quest, **answer)
-
+        QuestionModel.objects.bulk_create(question_models)
+        AnswerModel.objects.bulk_create(answer_models)
         return quiz
 
     def update(self, instance, validated_data):
@@ -95,60 +80,54 @@ class QuizSerializer(serializers.ModelSerializer):
 
         existing_questions = {question.id: question for question in instance.questions.all()}
 
+        questions_for_update = []
+        answers_for_update = []
+
+        questions_for_create = []
+        answers_for_create = []
         for question_data in questions_data:
             question_id = question_data.get("id")
             if question_id and question_id in existing_questions:
                 question = existing_questions.pop(question_id)
-                question.question = question_data.get("question", question.question)
-                question.save()
+                question.text = question_data.get("text", question.text)
+                questions_for_update.append(question)
 
-                existing_answers = {answer.id: answer for answer in instance.answers}
+                existing_answers = {answer.id: answer for answer in instance.answers.all()}
 
                 for answer_data in question_data.get("answers", []):
                     answer_id = answer_data.get("id")
                     if answer_id and answer_id in existing_answers:
                         answer = existing_answers.pop(answer_id)
-                        answer.answer = answer_data.get("answer", answer.answer)
+                        answer.text = answer_data.get("text", answer.text)
                         answer.is_correct = answer_data.get("is_correct", answer.is_correct)
-                        answer.save()
+                        answers_for_update.append(answer)
                     else:
-                        AnswerModel.objects.create(question=question, **answer_data)
+                        answers_for_create.append(AnswerModel(question=question, **answer_data))
 
-                for answer in existing_answers.values():
-                    answer.delete()
+                AnswerModel.objects.filter(id__in=existing_answers.keys()).delete()
             else:
                 answers_data = question_data.pop("answers", [])
-                new_question = QuestionModel.objects.create(quiz=instance, **question_data)
+                new_question = QuestionModel(quiz=instance, **question_data)
+                questions_for_create.append(new_question)
                 for answer_data in answers_data:
-                    AnswerModel.objects.create(question=new_question, **answer_data)
-        for question in existing_questions.values():
-            question.delete()
+                    answers_for_create.append(AnswerModel(question=new_question, **answer_data))
 
+        QuestionModel.objects.filter(id__in=existing_questions.keys()).delete()
+
+        QuestionModel.objects.bulk_create(questions_for_create)
+        AnswerModel.objects.bulk_create(answers_for_create)
+        QuestionModel.objects.bulk_update(questions_for_update, ["text"])
+        AnswerModel.objects.bulk_update(answers_for_update, ["text", "is_correct"])
         return instance
 
     def validate(self, data):
         questions = data.get("questions", [])
         if len(questions) < 2:
-            raise serializers.ValidationError(_("A quiz must have at least 2 questions."))
+            raise ValidationError(_("A quiz must have at least 2 questions."))
 
         for question in questions:
             answers = question.get("answers", [])
             if len(answers) < 2:
-                raise serializers.ValidationError(_("Each question must have at least 2 answer options."))
+                raise ValidationError(_("Each question must have at least 2 answer options."))
 
         return data
-
-
-class GetQuizSerializer(serializers.ModelSerializer):
-    questions = GetQuestionSerializer(many=True)
-
-    class Meta:
-        model = QuizModel
-        fields = [
-            "id",
-            "title",
-            "description",
-            "frequency",
-            "questions",
-            "company"
-        ]

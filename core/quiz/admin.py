@@ -11,7 +11,7 @@ class QuizAdmin(admin.ModelAdmin):
     list_filter = ("id", "title", "company")
 
     def get_questions(self, obj):
-        return "".join([question.question for question in obj.questions.all()])
+        return "".join([question_data.question for question_data in obj.questions.all()])
 
 
 admin.site.register([QuestionModel, AnswerModel])

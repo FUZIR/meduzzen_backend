@@ -1,4 +1,5 @@
 from rest_framework import permissions
+from django.db.models import Q
 from core.company.models import Company
 from core.invitation.models import InvitationModel
 from core.request.models import RequestModel
@@ -10,10 +11,9 @@ class IsAdminOrOwnerPermission(permissions.BasePermission):
     def __check_is_admin_or_owner(self, request, company_id):
         if not company_id:
             return False
-        return (request.user.is_authenticated and (RoleModel.objects.filter(user=request.user, company=company_id,
-                                                                            role=UserRoles.ADMIN).exists() or RoleModel.objects.filter(
-            user=request.user, company=company_id,
-            role=UserRoles.OWNER).exists()))
+        return (request.user.is_authenticated and (
+            RoleModel.objects.filter(Q(role=UserRoles.ADMIN) | Q(role=UserRoles.OWNER), user=request.user,
+                                     company=company_id).exists()))
 
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Company):

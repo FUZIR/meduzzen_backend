@@ -3,7 +3,7 @@ from rest_framework.permissions import IsAuthenticated
 
 from core.role.permissions import IsAdminOrOwnerPermission
 from .models import QuizModel
-from .serializers import QuizSerializer, GetQuizSerializer
+from .serializers import QuizSerializer
 
 
 # Create your views here.
@@ -11,9 +11,7 @@ class QuizViewSet(viewsets.ModelViewSet):
     queryset = QuizModel.objects.all()
 
     def get_serializer_class(self):
-        if self.action == "list":
-            return GetQuizSerializer
-        elif self.action in ["create", "update", "partial_update"]:
+        if self.action in ["list", "create", "update", "partial_update"]:
             return QuizSerializer
 
     def get_permissions(self):
