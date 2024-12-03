@@ -5,6 +5,7 @@ from core.company.models import Company
 from core.invitation.models import InvitationModel
 from core.request.models import RequestModel
 from core.role.models import RoleModel, UserRoles
+from core.quiz.models import QuizModel
 
 
 class OwnCompanyPermission(permissions.BasePermission):
@@ -27,6 +28,8 @@ class OwnCompanyPermission(permissions.BasePermission):
             return self.__check_is_owner(request, obj.company.id)
         elif isinstance(obj, RequestModel):
             return self.__check_is_owner(request, obj.company.id)
+        elif isinstance(obj, QuizModel):
+            return self.__check_is_owner(request, obj.company.id if obj.company else None)
         return False
 
     def has_permission(self, request, view):

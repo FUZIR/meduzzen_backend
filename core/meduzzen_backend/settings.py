@@ -51,7 +51,8 @@ INSTALLED_APPS = [
     "core.company",
     "core.invitation",
     "core.request",
-    "core.role"
+    "core.role",
+    "core.quiz"
 ]
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",

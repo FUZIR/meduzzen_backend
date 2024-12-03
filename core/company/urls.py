@@ -7,7 +7,7 @@ from core.company.views.invitation import InvitationViewSet
 from core.company.views.views import CompanyViewSet
 
 router = DefaultRouter()
-router.register(r"companies", CompanyViewSet)
+router.register(r"companies", CompanyViewSet, basename='company')
 router.register(r"invitations", InvitationViewSet)
 
 urlpatterns = [

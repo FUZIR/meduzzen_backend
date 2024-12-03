@@ -1358,3 +1358,12 @@ msgstr "Потрібно вказати ID компанії"
 
 msgid "You do not have permission to perform this action."
 msgstr "У вас немає дозволу на виконання цієї дії."
+
+msgid "There must be only one correct answer."
+msgstr "Повинна бути тільки одна правильна відповідь."
+
+msgid "A quiz must have at least 2 questions."
+msgstr "Квіз має мати хоча б 2 питання."
+
+msgid "Each question must have at least 2 answer options."
+msgstr "Кожне питання має мати хоча б 2 опції відповіді."
