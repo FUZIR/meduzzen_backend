@@ -36,17 +36,13 @@ class QuizViewSet(viewsets.ModelViewSet):
                 raise ValidationError({"detail": "Company id is required"})
             return QuizModel.objects.filter(company=company_id).prefetch_related("questions__answers")
         elif self.action in ["start_quiz", "end_quiz"]:
-            return QuizModel.objects.filter(id=self.request.data.get("quiz"),
-                                            company=self.request.data.get("company")).prefetch_related(
-                "questions__answers").select_related("company")
+            return QuizModel.objects.filter(id=self.request.data.get("quiz"), company=self.request.data.get("company"))
         elif self.action == "get_company_average_score":
             company_id = self.request.query_params.get("company")
-            return ResultsModel.objects.filter(company=company_id).select_related("company", "quiz").prefetch_related(
-                "quiz__questions", "quiz__questions__answers")
+            return ResultsModel.objects.filter(company=company_id)
         elif self.action == "get_average_score":
-            return ResultsModel.objects.all().select_related("company", "quiz").prefetch_related("quiz__questions",
-                                                                                                 "quiz__questions__answers")
-        return QuizModel.objects.prefetch_related("questions__answers").select_related("company")
+            return ResultsModel.objects.all()
+        return QuizModel.objects.all()
 
     def calculate_average_score(self, queryset):
         total_questions = (
@@ -68,14 +64,16 @@ class QuizViewSet(viewsets.ModelViewSet):
 
     @action(methods=["POST"], permission_classes=[IsAuthenticated], detail=False, url_path="start")
     def start_quiz(self, request, *args, **kwargs):
-        quiz = get_object_or_404(self.get_queryset())
+        quiz = get_object_or_404(self.get_queryset().prefetch_related(
+            "questions__answers").select_related("company"))
         user = request.user
         ResultsModel.objects.create(quiz=quiz, user=user, company=quiz.company)
         return Response({"detail": _("Quiz started successfully")}, status=HTTP_201_CREATED)
 
     @action(methods=["POST"], permission_classes=[IsAuthenticated], detail=False, url_path="end")
     def end_quiz(self, request, *args, **kwargs):
-        quiz = self.get_queryset().first()
+        quiz = self.get_queryset().prefetch_related(
+            "questions__answers").select_related("company").first()
         correct_answers = request.data.get("correct_answers")
         if not correct_answers:
             raise ValidationError({"detail": _("Correct answers are required")})
@@ -95,14 +93,16 @@ class QuizViewSet(viewsets.ModelViewSet):
     @action(methods=["GET"], permission_classes=[IsAdminOrOwnerPermission], detail=False,
             url_path="company-average-score")
     def get_company_average_score(self, request, *args, **kwargs):
-        results = self.get_queryset()
+        results = self.get_queryset().select_related("company", "quiz").prefetch_related(
+            "quiz__questions", "quiz__questions__answers")
         if not results:
             return Response({"detail": _("Quiz data not found")}, status=HTTP_404_NOT_FOUND)
         return self.calculate_average_score(results)
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="average-score")
     def get_average_score(self, request, *args, **kwargs):
-        users_results = self.get_queryset()
+        users_results = self.get_queryset().select_related("company", "quiz").prefetch_related("quiz__questions",
+                                                                                               "quiz__questions__answers")
         if not users_results:
             return Response({"detail": _("Users results not found")}, status=HTTP_404_NOT_FOUND)
         return self.calculate_average_score(users_results)
