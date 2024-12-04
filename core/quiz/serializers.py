@@ -2,7 +2,9 @@ from django.db import transaction
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
-from .models import QuizModel, QuestionModel, AnswerModel
+from core.company.serializers import CompanyListSerializer
+from core.user.serializers import UserListSerializer
+from .models import QuizModel, QuestionModel, AnswerModel, ResultsModel
 from django.utils.translation import gettext_lazy as _
 
 
@@ -130,11 +132,30 @@ class QuizSerializer(serializers.ModelSerializer):
     def validate(self, data):
         questions = data.get("questions", [])
         if len(questions) < 2:
-            raise ValidationError(_("A quiz must have at least 2 questions."))
+            raise ValidationError({"detail": _("A quiz must have at least 2 questions.")})
 
         for question in questions:
             answers = question.get("answers", [])
             if len(answers) < 2:
-                raise ValidationError(_("Each question must have at least 2 answer options."))
+                raise ValidationError({"detail": _("Each question must have at least 2 answer options.")})
 
         return data
+
+
+class ResultsSerializer(serializers.ModelSerializer):
+    quiz = QuizSerializer()
+    user = UserListSerializer()
+    company = CompanyListSerializer()
+
+    class Meta:
+        model = ResultsModel
+        fields = [
+            "id",
+            "quiz",
+            "user",
+            "company",
+            "correct_answers",
+        ]
+        extra_kwargs = {
+            "id": {"read_only": True}
+        }

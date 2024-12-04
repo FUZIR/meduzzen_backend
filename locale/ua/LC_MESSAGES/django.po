@@ -1367,3 +1367,33 @@ msgstr "Квіз має мати хоча б 2 питання."
 
 msgid "Each question must have at least 2 answer options."
 msgstr "Кожне питання має мати хоча б 2 опції відповіді."
+
+msgid "Correct answers count cant be more then questions count"
+msgstr "Кількіть правильних відповідей не може перевищувати кількість питань"
+
+msgid "Company id is required"
+msgstr "Необходим идентификатор компании"
+
+msgid "Correct answers are required"
+msgstr "Необходимы правильные ответы"
+
+msgid "No results found for this user and quiz"
+msgstr "Результаты для этого пользователя и викторины не найдены"
+
+msgid "Quiz data not found"
+msgstr "Данные викторины не найдены"
+
+msgid "Users results not found"
+msgstr "Результаты пользователей не найдены"
+
+msgid "Quiz started successfully"
+msgstr "Викторина успешно начата"
+
+msgid "Quiz ended successfully"
+msgstr "Викторина успешно завершена"
+
+msgid "A quiz must have at least 2 questions"
+msgstr "Тест повинен містити щонайменше 2 питання"
+
+msgid "A question must have at least 2 answers"
+msgstr "Питання повинно мати щонайменше 2 відповіді"

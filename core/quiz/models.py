@@ -1,8 +1,12 @@
+from django.core.validators import MinValueValidator
 from django.db import models
+from django.db.models import TextChoices
 from rest_framework.exceptions import ValidationError
 
 from core.company.models import Company
 from core.utils.models import TimeStampedModel
+from core.user.models import CustomUser
+from django.utils.translation import gettext_lazy as _
 
 
 # Create your models here.
@@ -10,14 +14,14 @@ class QuizModel(TimeStampedModel):
     title = models.CharField(max_length=100, blank=False)
     description = models.TextField(max_length=255, blank=False)
     frequency = models.IntegerField(blank=True)
-    company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=False, null=True)
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=False, null=True, related_name="quizzes")
 
     class Meta:
         db_table = "quizzes"
 
     def clean(self):
         if self.pk and self.questions.count() < 2:
-            return ValidationError("A quiz must have at least 2 questions")
+            return ValidationError({"detail":_("A quiz must have at least 2 questions")})
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -33,7 +37,7 @@ class QuestionModel(TimeStampedModel):
 
     def clean(self):
         if self.pk and self.answers.count() < 2:
-            return ValidationError("A question must have at least 2 answers")
+            return ValidationError({"detail":_("A question must have at least 2 answers")})
 
     def save(self, *args, **kwargs):
         self.clean()
@@ -47,3 +51,27 @@ class AnswerModel(TimeStampedModel):
 
     class Meta:
         db_table = "answers"
+
+
+class QuizStatus(TextChoices):
+    STARTED = "ST", "Started"
+    COMPLETED = "CM", "Completed"
+
+
+class ResultsModel(TimeStampedModel):
+    quiz = models.ForeignKey(QuizModel, on_delete=models.CASCADE, blank=False, related_name="quiz")
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, related_name="user")
+    company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=False, null=True, related_name="company")
+    quiz_status = models.CharField(choices=QuizStatus.choices, default=QuizStatus.STARTED, blank=False, max_length=2)
+    correct_answers = models.IntegerField(validators=[MinValueValidator(0)], null=True, blank=False)
+
+    class Meta:
+        db_table = "results"
+
+    def clean(self):
+        if self.pk and self.quiz.questions.count() < self.correct_answers:
+            raise ValidationError({"detail": _("Correct answers count can't be more than questions count")})
+
+    def save(self, *args, **kwargs):
+        self.clean()
+        super().save(*args, **kwargs)
