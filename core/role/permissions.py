@@ -35,5 +35,8 @@ class IsAdminOrOwnerPermission(permissions.BasePermission):
             elif view.action == "create":
                 company_id = request.data.get("company")
                 return self.__check_is_admin_or_owner(request, company_id)
+            elif view.action in ["get_admins", "get_company_results"]:
+                company_id = request.query_params.get("company")
+                return self.__check_is_admin_or_owner(request, company_id)
             return False
         return True

@@ -1,15 +1,17 @@
 from django.db import transaction
-from django.db.models import Sum, Count, QuerySet
+from django.db.models import Sum, Count, QuerySet, F, FloatField
+from django.db.models.functions import Cast
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FOUND
+from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 from django.utils.translation import gettext_lazy as _
 
 from core.role.permissions import IsAdminOrOwnerPermission
+from core.utils.csv_writer import return_csv
 from .models import QuizModel, ResultsModel, QuizStatus
 from .serializers import QuizSerializer, ResultsSerializer
 
@@ -26,8 +28,7 @@ class QuizViewSet(viewsets.ModelViewSet):
     def get_permissions(self):
         if self.action in ["create", "update", "partial_update", "destroy"]:
             return [IsAuthenticated(), IsAdminOrOwnerPermission()]
-        else:
-            return [IsAuthenticated()]
+        return super().get_permissions()
 
     def get_queryset(self):
         if self.action == "list":
@@ -99,3 +100,33 @@ class QuizViewSet(viewsets.ModelViewSet):
         if not users_results:
             return Response({"detail": _("Users results not found")}, status=HTTP_404_NOT_FOUND)
         return self.calculate_average_score(users_results)
+
+    @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="statistic-csv")
+    def get_user_results(self, request, *args, **kwargs):
+        user_results = (ResultsModel.objects.filter(user=request.user).prefetch_related(
+            "quiz__questions").select_related("company")
+                        .annotate(questions_count=Count("quiz__questions"))
+                        .annotate(score=Cast(Cast(F("correct_answers"), output_field=FloatField())
+                                             / Cast(F("questions_count"), output_field=FloatField()) * 10.0,
+                                             output_field=FloatField())))
+        return return_csv(user_results)
+
+    @action(methods=["GET"], permission_classes=[IsAdminOrOwnerPermission], detail=False,
+            url_path="company-results-csv")
+    def get_company_results(self, request, *args, **kwargs):
+        company_id = request.query_params.get("company")
+        if not company_id:
+            return Response({"detail": "Company ID is required"}, status=HTTP_400_BAD_REQUEST)
+
+        user_id = request.query_params.get("user")
+        results = ResultsModel.objects.filter(company=company_id)
+        if user_id:
+            results = results.filter(user=user_id)
+        results = (results.prefetch_related(
+            "quiz__questions").select_related("company")
+                   .annotate(questions_count=Count("quiz__questions"))
+                   .annotate(score=Cast(Cast(F("correct_answers"), output_field=FloatField())
+                                        / Cast(F("questions_count"), output_field=FloatField()) * 10.0,
+                                        output_field=FloatField())))
+
+        return return_csv(results)

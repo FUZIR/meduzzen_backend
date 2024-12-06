@@ -14,6 +14,7 @@ from core.company.models import Company
 from core.company.permissions import OwnCompanyPermission
 from core.company.serializers import CompanyListSerializer, CompanySerializer, CreateCompanySerializer
 from core.role.models import RoleModel, UserRoles
+from core.role.permissions import IsAdminOrOwnerPermission
 
 
 # Create your views here.
@@ -138,7 +139,7 @@ class CompanyViewSet(ModelViewSet):
         return Response({"detail": "Admin removed successfully"}, status=HTTP_200_OK)
 
     @action(methods=["GET"], detail=False, url_path="admins",
-            permission_classes=[IsAuthenticated, OwnCompanyPermission])
+            permission_classes=[IsAuthenticated, IsAdminOrOwnerPermission])
     def get_admins(self, request, *args, **kwargs):
         company_id = request.query_params.get("company")
         if not company_id:

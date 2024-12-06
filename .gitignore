@@ -165,3 +165,4 @@ db-data
 redis-config
 redis-data
 app
+*.csv
