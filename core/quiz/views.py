@@ -1,9 +1,6 @@
-import csv
-
 from django.db import transaction
 from django.db.models import Sum, Count, QuerySet, F, FloatField
 from django.db.models.functions import Cast
-from django.http import HttpResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
@@ -14,6 +11,7 @@ from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FO
 from django.utils.translation import gettext_lazy as _
 
 from core.role.permissions import IsAdminOrOwnerPermission
+from core.utils.csv_writer import return_csv
 from .models import QuizModel, ResultsModel, QuizStatus
 from .serializers import QuizSerializer, ResultsSerializer
 
@@ -59,22 +57,6 @@ class QuizViewSet(viewsets.ModelViewSet):
             average_score = 0
 
         return Response({"average_score": average_score}, status=200)
-
-    def return_csv(self, results: QuerySet) -> HttpResponse:
-        response = HttpResponse(content_type='text/csv')
-        response['Content-Disposition'] = 'attachment; filename="user_results.csv"'
-        writer = csv.writer(response)
-        writer.writerow(["id", "quiz_name", "company", "correct_answers", "score", "started_at", "ended_at"])
-        for result in results:
-            writer.writerow([result.id,
-                             result.quiz.title,
-                             result.quiz.company,
-                             result.correct_answers,
-                             round(result.score or 0, 2),
-                             result.created_at.strftime('%Y-%m-%d %H:%M:%S'),
-                             result.updated_at.strftime('%Y-%m-%d %H:%M:%S')
-                             ])
-        return response
 
     @action(methods=["POST"], permission_classes=[IsAuthenticated], detail=False, url_path="start")
     def start_quiz(self, request, *args, **kwargs):
@@ -127,7 +109,7 @@ class QuizViewSet(viewsets.ModelViewSet):
                         .annotate(score=Cast(Cast(F("correct_answers"), output_field=FloatField())
                                              / Cast(F("questions_count"), output_field=FloatField()) * 10.0,
                                              output_field=FloatField())))
-        return self.return_csv(user_results)
+        return return_csv(user_results)
 
     @action(methods=["GET"], permission_classes=[IsAdminOrOwnerPermission], detail=False,
             url_path="company-results-csv")
@@ -147,4 +129,4 @@ class QuizViewSet(viewsets.ModelViewSet):
                                         / Cast(F("questions_count"), output_field=FloatField()) * 10.0,
                                         output_field=FloatField())))
 
-        return self.return_csv(results)
+        return return_csv(results)
