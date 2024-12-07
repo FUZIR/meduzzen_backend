@@ -1,4 +1,3 @@
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.db.models import TextChoices
 from rest_framework.exceptions import ValidationError
@@ -63,7 +62,7 @@ class ResultsModel(TimeStampedModel):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, blank=False, related_name="user")
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=False, null=True, related_name="company")
     quiz_status = models.CharField(choices=QuizStatus.choices, default=QuizStatus.STARTED, blank=False, max_length=2)
-    correct_answers = models.IntegerField(validators=[MinValueValidator(0)], null=True, blank=False)
+    correct_answers = models.IntegerField(null=True, blank=False)
 
     class Meta:
         db_table = "results"

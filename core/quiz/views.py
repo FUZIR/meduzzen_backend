@@ -19,7 +19,7 @@ from .serializers import QuizSerializer, ResultsSerializer
 # Create your views here.
 class QuizViewSet(viewsets.ModelViewSet):
     def get_serializer_class(self):
-        if self.action in ["list", "create", "update", "partial_update"]:
+        if self.action in ["list","retrieve","create", "update", "partial_update"]:
             return QuizSerializer
         elif self.action in ["start_quiz", "end_quiz"]:
             return ResultsSerializer
@@ -67,7 +67,7 @@ class QuizViewSet(viewsets.ModelViewSet):
 
     @action(methods=["POST"], permission_classes=[IsAuthenticated], detail=False, url_path="end")
     def end_quiz(self, request, *args, **kwargs):
-        quiz = self.get_queryset().select_related("company").first()
+        quiz = get_object_or_404(self.get_queryset().select_related("company"))
         correct_answers = request.data.get("correct_answers")
         if not correct_answers:
             raise ValidationError({"detail": _("Correct answers are required")})
