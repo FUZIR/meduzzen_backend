@@ -1368,6 +1368,25 @@ msgstr "Квіз має мати хоча б 2 питання."
 msgid "Each question must have at least 2 answer options."
 msgstr "Кожне питання має мати хоча б 2 опції відповіді."
 
+msgid "Ratings not found"
+msgstr "Рейтинги не знайдено"
+
+msgid "Quizzes history not found"
+msgstr "Історію квізів не знайдено"
+
+msgid "Quizzes average not found"
+msgstr "Середній бал квізів не знайдено"
+
+msgid "Users averages scores not found"
+msgstr "Середні бали користувачів не знайдено"
+
+msgid "User averages by id not found"
+msgstr "Середні значення користувача за ID не знайдено"
+
+msgid "Company user with last taken time not found"
+msgstr "Користувачів компанії з останнім тестом не знайдено"
+
+
 msgid "Correct answers count cant be more then questions count"
 msgstr "Кількіть правильних відповідей не може перевищувати кількість питань"
 

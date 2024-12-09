@@ -159,3 +159,79 @@ class ResultsSerializer(serializers.ModelSerializer):
         extra_kwargs = {
             "id": {"read_only": True}
         }
+
+
+class RatingListSerializer(serializers.ModelSerializer):
+    user = UserListSerializer()
+    average_score = serializers.FloatField()
+
+    class Meta:
+        model = ResultsModel
+        fields = [
+            "user",
+            "average_score"
+        ]
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        representation['user'] = {
+            'id': instance['user_id'],
+            'username': instance['user__username'],
+            'first_name': instance['user__first_name'],
+            'last_name': instance['user__last_name'],
+            'company': instance.get('user__company__name', None)
+        }
+        return representation
+
+class CompanyQuizzesHistory(serializers.ModelSerializer):
+    user = UserListSerializer()
+    score = serializers.FloatField()
+    last_test_time = serializers.DateTimeField()
+
+    class Meta:
+        model = ResultsModel
+        fields = [
+            "id",
+            "user",
+            "quiz_id",
+            "score",
+            "last_test_time"
+        ]
+
+class QuizzesAveragesSerializer(serializers.ModelSerializer):
+    quiz_id = serializers.IntegerField()
+    quiz_title = serializers.CharField()
+    average_score = serializers.FloatField()
+    date = serializers.DateField()
+
+    class Meta:
+        model = ResultsModel
+        fields = [
+            "quiz_id",
+            "quiz_title",
+            "average_score",
+            "date",
+        ]
+
+class UsersAverageSerializer(serializers.ModelSerializer):
+    average_score = serializers.FloatField()
+    date = serializers.DateField()
+
+    class Meta:
+        model=ResultsModel
+        fields = [
+            "average_score",
+            "date"
+        ]
+
+class CompanyUsersWithLastTestSerializer(serializers.ModelSerializer):
+    last_time_taken = serializers.DateTimeField()
+
+    class Meta:
+        model = ResultsModel
+        fields = [
+            "quiz_id",
+            "user",
+            "score",
+            "last_time_taken",
+        ]
