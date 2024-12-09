@@ -59,7 +59,7 @@ class QuizViewSet(viewsets.ModelViewSet):
     def end_quiz(self, request, *args, **kwargs):
         quiz = get_object_or_404(self.get_queryset().select_related("company"))
         correct_answers = request.data.get("correct_answers")
-        if not correct_answers:
+        if correct_answers is None:
             raise ValidationError({"detail": _("Correct answers are required")})
         results = (ResultsModel.objects.filter(company=quiz.company, user=request.user,
                                                quiz_status=QuizStatus.STARTED).select_related("quiz").prefetch_related(

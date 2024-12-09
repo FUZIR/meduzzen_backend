@@ -63,7 +63,7 @@ class ResultsModel(TimeStampedModel):
     company = models.ForeignKey(Company, on_delete=models.SET_NULL, blank=False, null=True, related_name="company")
     score = models.FloatField(default=0.0)
     quiz_status = models.CharField(choices=QuizStatus.choices, default=QuizStatus.STARTED, blank=False, max_length=2)
-    correct_answers = models.IntegerField(null=True, blank=False)
+    correct_answers = models.IntegerField(default=0, blank=False)
 
     class Meta:
         db_table = "results"
