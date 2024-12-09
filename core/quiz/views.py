@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.role.permissions import IsAdminOrOwnerPermission
 from core.utils.csv_writer import return_csv
-from user.models import CustomUser
+from core.user.models import CustomUser
 from .models import QuizModel, ResultsModel, QuizStatus
 from .serializers import QuizSerializer, ResultsSerializer, RatingListSerializer, CompanyQuizzesHistory, \
     QuizzesAveragesSerializer, UsersAverageSerializer, CompanyUsersWithLastTestSerializer
