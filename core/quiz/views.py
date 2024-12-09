@@ -12,6 +12,7 @@ from django.utils.translation import gettext_lazy as _
 
 from core.role.permissions import IsAdminOrOwnerPermission
 from core.utils.csv_writer import return_csv
+from user.models import CustomUser
 from .models import QuizModel, ResultsModel, QuizStatus
 from .serializers import QuizSerializer, ResultsSerializer, RatingListSerializer, CompanyQuizzesHistory, \
     QuizzesAveragesSerializer, UsersAverageSerializer, CompanyUsersWithLastTestSerializer
@@ -96,6 +97,19 @@ class QuizViewSet(viewsets.ModelViewSet):
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="statistic-csv")
     def get_user_results(self, request, *args, **kwargs):
         user_results = (ResultsModel.objects.filter(user=request.user).select_related("company"))
+        return return_csv(user_results)
+
+    @action(methods=["GET"], permission_classes=[IsAdminOrOwnerPermission], detail=False, url_path="statistic-csv-by-id")
+    def get_user_results_by_id(self, request, *args, **kwargs):
+        user_id = request.query_params.get("user")
+        company_id = request.query_params.get("company")
+        if not user_id or not company_id:
+            return Response({"detail": _("User and company ids are required")})
+        user_in_company = CustomUser.objects.filter(id=user_id, company_id=company_id).exists()
+        if not user_in_company:
+            return Response({"detail": _("The user does not belong to this company")}, status=HTTP_404_NOT_FOUND)
+
+        user_results = (ResultsModel.objects.filter(user=user_id, company=company_id).select_related("company"))
         return return_csv(user_results)
 
     @action(methods=["GET"], permission_classes=[IsAdminOrOwnerPermission], detail=False,

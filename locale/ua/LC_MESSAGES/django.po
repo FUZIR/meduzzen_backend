@@ -1391,28 +1391,34 @@ msgid "Correct answers count cant be more then questions count"
 msgstr "Кількіть правильних відповідей не може перевищувати кількість питань"
 
 msgid "Company id is required"
-msgstr "Необходим идентификатор компании"
+msgstr "Необхідний ідентифікатор компанії"
 
 msgid "Correct answers are required"
-msgstr "Необходимы правильные ответы"
+msgstr "Потрібні правильні відповіді"
 
 msgid "No results found for this user and quiz"
-msgstr "Результаты для этого пользователя и викторины не найдены"
+msgstr "Результати для цього користувача та вікторини не знайдено"
 
 msgid "Quiz data not found"
-msgstr "Данные викторины не найдены"
+msgstr "Дані вікторини не знайдено"
 
 msgid "Users results not found"
-msgstr "Результаты пользователей не найдены"
+msgstr "Результати користувачів не знайдено"
 
 msgid "Quiz started successfully"
-msgstr "Викторина успешно начата"
+msgstr "Вікторину успішно розпочато"
 
 msgid "Quiz ended successfully"
-msgstr "Викторина успешно завершена"
+msgstr "Вікторину успішно завершено"
 
 msgid "A quiz must have at least 2 questions"
 msgstr "Тест повинен містити щонайменше 2 питання"
 
 msgid "A question must have at least 2 answers"
 msgstr "Питання повинно мати щонайменше 2 відповіді"
+
+msgid "User and company ids are required"
+msgstr "Айді користувача та компанії необхідні"
+
+msgid "The user does not belong to this company"
+msgstr "Користувач не належить до цієї компанії"
