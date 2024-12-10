@@ -3,9 +3,9 @@ from rest_framework import permissions
 
 from core.company.models import Company
 from core.invitation.models import InvitationModel
+from core.quiz.models import QuizModel
 from core.request.models import RequestModel
 from core.role.models import RoleModel, UserRoles
-from core.quiz.models import QuizModel
 
 
 class OwnCompanyPermission(permissions.BasePermission):
@@ -24,9 +24,7 @@ class OwnCompanyPermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, Company):
             return self.__check_is_owner(request, obj.id)
-        elif isinstance(obj, InvitationModel):
-            return self.__check_is_owner(request, obj.company.id)
-        elif isinstance(obj, RequestModel):
+        elif isinstance(obj, InvitationModel) or isinstance(obj, RequestModel):
             return self.__check_is_owner(request, obj.company.id)
         elif isinstance(obj, QuizModel):
             return self.__check_is_owner(request, obj.company.id if obj.company else None)

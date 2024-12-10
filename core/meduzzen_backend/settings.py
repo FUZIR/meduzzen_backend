@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 
 import os.path
 from pathlib import Path
+
 import environ
 from django.utils.translation import gettext_lazy as _
 
@@ -46,13 +47,15 @@ INSTALLED_APPS = [
     "rest_framework.authtoken",
     "djoser",
     "corsheaders",
+    "channels",
     "core.utils",
     "core.user",
     "core.company",
     "core.invitation",
     "core.request",
     "core.role",
-    "core.quiz"
+    "core.quiz",
+    "core.notification"
 ]
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.LimitOffsetPagination",
@@ -114,7 +117,14 @@ TEMPLATES = [
     },
 ]
 
+ASGI_APPLICATION = "core.meduzzen_backend.asgi.application"
 WSGI_APPLICATION = "core.meduzzen_backend.wsgi.application"
+
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels.layers.InMemoryChannelLayer",
+    },
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases

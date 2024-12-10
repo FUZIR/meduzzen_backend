@@ -1,20 +1,20 @@
+from django.utils.translation import gettext_lazy as _
 from rest_framework.decorators import action
-from rest_framework.exceptions import ValidationError, PermissionDenied
+from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.request import Request
 from rest_framework.response import Response
-from rest_framework.status import HTTP_204_NO_CONTENT, HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_204_NO_CONTENT, HTTP_400_BAD_REQUEST
 from rest_framework.viewsets import ModelViewSet
-from django.utils.translation import gettext_lazy as _
 
-from core.user.models import CustomUser
-from core.user.serializers import UserListSerializer
 from core.company.models import Company
 from core.company.permissions import OwnCompanyPermission
 from core.company.serializers import CompanyListSerializer, CompanySerializer, CreateCompanySerializer
 from core.role.models import RoleModel, UserRoles
 from core.role.permissions import IsAdminOrOwnerPermission
+from core.user.models import CustomUser
+from core.user.serializers import UserListSerializer
 
 
 # Create your views here.

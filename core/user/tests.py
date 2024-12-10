@@ -1,8 +1,8 @@
 from django.test import TestCase
 
 from core.request.tests import BaseTestCase
-from .models import CustomUser
 
+from .models import CustomUser
 
 # Create your tests here.
 

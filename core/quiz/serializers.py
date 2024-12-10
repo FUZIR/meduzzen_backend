@@ -1,11 +1,12 @@
 from django.db import transaction
+from django.utils.translation import gettext_lazy as _
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from core.company.serializers import CompanyListSerializer
 from core.user.serializers import UserListSerializer
-from .models import QuizModel, QuestionModel, AnswerModel, ResultsModel
-from django.utils.translation import gettext_lazy as _
+
+from .models import AnswerModel, QuestionModel, QuizModel, ResultsModel
 
 
 class AnswerSerializer(serializers.ModelSerializer):

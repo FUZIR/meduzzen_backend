@@ -3,7 +3,7 @@ extend = "../pyproject.toml"
 
 [lint]
 select = ["E", "F", "I", "SIM", "B", "UP"]
-ignore = []
+ignore = ["E402"]
 
 fixable = ["ALL"]
 unfixable = []

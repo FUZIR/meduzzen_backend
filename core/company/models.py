@@ -2,7 +2,6 @@ from django.db import models
 
 from core.utils.models import TimeStampedModel
 
-
 # Create your models here.
 
 class Company(TimeStampedModel):

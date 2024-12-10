@@ -1,17 +1,16 @@
 import djoser.serializers
 from django.utils.translation import gettext as _
-from rest_framework.decorators import permission_classes, action
-from rest_framework.pagination import LimitOffsetPagination
-from rest_framework.permissions import IsAdminUser, IsAuthenticated, AllowAny
-from rest_framework.response import Response
-from rest_framework.status import HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
 from djoser.views import UserViewSet as DjoserViewSet
+from rest_framework.decorators import action, permission_classes
+from rest_framework.pagination import LimitOffsetPagination
+from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
+from core.role.models import RoleModel
 from core.user.models import CustomUser as User
 from core.user.permissions import OwnProfilePermission
-from core.user.serializers import UserSerializer
-from core.user.serializers import UserListSerializer
-from core.role.models import RoleModel
+from core.user.serializers import UserListSerializer, UserSerializer
 
 
 # Create your views here.
