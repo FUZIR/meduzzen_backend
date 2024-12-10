@@ -183,7 +183,7 @@ class RatingListSerializer(serializers.ModelSerializer):
         }
         return representation
 
-class CompanyQuizzesHistory(serializers.ModelSerializer):
+class CompanyQuizzHistory(serializers.ModelSerializer):
     user = UserListSerializer()
     score = serializers.FloatField()
     last_test_time = serializers.DateTimeField()
@@ -198,7 +198,7 @@ class CompanyQuizzesHistory(serializers.ModelSerializer):
             "last_test_time"
         ]
 
-class QuizzesAveragesSerializer(serializers.ModelSerializer):
+class QuizzAverageScoreSerializer(serializers.ModelSerializer):
     quiz_id = serializers.IntegerField()
     quiz_title = serializers.CharField()
     average_score = serializers.FloatField()
@@ -213,7 +213,7 @@ class QuizzesAveragesSerializer(serializers.ModelSerializer):
             "date",
         ]
 
-class UsersAverageSerializer(serializers.ModelSerializer):
+class UserAverageScoreSerializer(serializers.ModelSerializer):
     average_score = serializers.FloatField()
     date = serializers.DateField()
 

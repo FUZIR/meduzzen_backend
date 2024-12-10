@@ -14,8 +14,8 @@ from core.role.permissions import IsAdminOrOwnerPermission
 from core.utils.csv_writer import return_csv
 from core.user.models import CustomUser
 from .models import QuizModel, ResultsModel, QuizStatus
-from .serializers import QuizSerializer, ResultsSerializer, RatingListSerializer, CompanyQuizzesHistory, \
-    QuizzesAveragesSerializer, UsersAverageSerializer, CompanyUsersWithLastTestSerializer
+from .serializers import QuizSerializer, ResultsSerializer, RatingListSerializer, CompanyQuizzHistory, \
+    QuizzAverageScoreSerializer, UserAverageScoreSerializer, CompanyUsersWithLastTestSerializer
 
 
 # Create your views here.
@@ -127,11 +127,10 @@ class QuizViewSet(viewsets.ModelViewSet):
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="get-ratings")
     def get_ratings(self, request, *args, **kwargs):
-        queryset = ResultsModel.objects.filter(quiz_status=QuizStatus.COMPLETED).select_related("user",
-                                                                                                "user__company").values(
-            "user",
-            "user_id", "user__username", "user__first_name", "user__last_name", "user__company").annotate(
-            average_score=Avg("score")).order_by("-average_score")
+        queryset = (ResultsModel.objects.filter(quiz_status=QuizStatus.COMPLETED)
+                    .select_related("user","user__company")
+                    .values("user","user_id", "user__username", "user__first_name", "user__last_name", "user__company")
+                    .annotate(average_score=Avg("score")).order_by("-average_score"))
         if not queryset.exists():
             return Response({"detail": _("Ratings not found")}, status=HTTP_404_NOT_FOUND)
         serializer = RatingListSerializer(queryset, many=True)
@@ -145,7 +144,7 @@ class QuizViewSet(viewsets.ModelViewSet):
             .annotate(last_test_time=F("updated_at")).order_by("-last_test_time"))
         if not queryset.exists():
             return Response({"detail": _("Quizzes history not found")}, status=HTTP_404_NOT_FOUND)
-        serializer = CompanyQuizzesHistory(queryset, many=True)
+        serializer = CompanyQuizzHistory(queryset, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="quizzes-average")
@@ -166,7 +165,7 @@ class QuizViewSet(viewsets.ModelViewSet):
         if not quizzes_average.exists():
             return Response({"detail": _("Quizzes average not found")}, status=HTTP_404_NOT_FOUND)
 
-        serializer = QuizzesAveragesSerializer(quizzes_average, many=True)
+        serializer = QuizzAverageScoreSerializer(quizzes_average, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="users-average")
@@ -182,7 +181,7 @@ class QuizViewSet(viewsets.ModelViewSet):
         )
         if not users_average.exists():
             return Response({"detail": _("Users averages scores not found")}, status=HTTP_404_NOT_FOUND)
-        serializer = UsersAverageSerializer(users_average, many=True)
+        serializer = UserAverageScoreSerializer(users_average, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="user-average-by-id")
@@ -199,7 +198,7 @@ class QuizViewSet(viewsets.ModelViewSet):
         )
         if not user_averages.exists():
             return Response({"detail": _("User averages by id not found")}, status=HTTP_404_NOT_FOUND)
-        serializer = UsersAverageSerializer(user_averages, many=True)
+        serializer = UserAverageScoreSerializer(user_averages, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
 
     @action(methods=["GET"], permission_classes=[IsAdminOrOwnerPermission], detail=False,
