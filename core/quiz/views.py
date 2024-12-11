@@ -1,21 +1,29 @@
 from django.db import transaction
-from django.db.models import Count, QuerySet, F, FloatField, Avg, OuterRef, Subquery
+from django.db.models import Avg, Count, F, FloatField, OuterRef, QuerySet, Subquery
 from django.db.models.functions import TruncDate
+from django.utils.translation import gettext_lazy as _
 from rest_framework import viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.status import HTTP_201_CREATED, HTTP_200_OK, HTTP_404_NOT_FOUND, HTTP_400_BAD_REQUEST
-from django.utils.translation import gettext_lazy as _
+from rest_framework.status import HTTP_200_OK, HTTP_201_CREATED, HTTP_400_BAD_REQUEST, HTTP_404_NOT_FOUND
 
 from core.role.permissions import IsAdminOrOwnerPermission
-from core.utils.csv_writer import return_csv
 from core.user.models import CustomUser
-from .models import QuizModel, ResultsModel, QuizStatus
-from .serializers import QuizSerializer, ResultsSerializer, RatingListSerializer, CompanyQuizzHistory, \
-    QuizzAverageScoreSerializer, UserAverageScoreSerializer, CompanyUsersWithLastTestSerializer
+from core.utils.csv_writer import return_csv
+
+from .models import QuizModel, QuizStatus, ResultsModel
+from .serializers import (
+    CompanyQuizzHistory,
+    CompanyUsersWithLastTestSerializer,
+    QuizSerializer,
+    QuizzAverageScoreSerializer,
+    RatingListSerializer,
+    ResultsSerializer,
+    UserAverageScoreSerializer,
+)
 
 
 # Create your views here.

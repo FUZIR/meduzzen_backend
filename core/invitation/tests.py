@@ -1,6 +1,5 @@
 from core.company.models import Company
-from core.invitation.models import InvitationModel
-from core.invitation.models import InvitationStatus
+from core.invitation.models import InvitationModel, InvitationStatus
 from core.request.tests import BaseTestCase
 from core.role.models import RoleModel, UserRoles
 

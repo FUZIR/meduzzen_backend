@@ -1,9 +1,6 @@
 from django.apps import AppConfig
 
 
-class QuizConfig(AppConfig):
+class NotificationConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'core.quiz'
-
-    def ready(self):
-        pass
+    name = 'core.notification'

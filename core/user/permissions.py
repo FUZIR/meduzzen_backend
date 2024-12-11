@@ -1,8 +1,10 @@
 from rest_framework import permissions
 from rest_framework.exceptions import NotFound
 
-from core.request.models import RequestModel
 from core.invitation.models import InvitationModel
+from core.notification.models import NotificationModel
+from core.request.models import RequestModel
+
 from .models import CustomUser
 
 
@@ -24,9 +26,7 @@ class OwnProfilePermission(permissions.BasePermission):
     def has_object_permission(self, request, view, obj):
         if isinstance(obj, CustomUser):
             return request.user.is_authenticated and obj.id == request.user.id
-        elif isinstance(obj, RequestModel):
-            return request.user.is_authenticated and obj.user == request.user
-        elif isinstance(obj, InvitationModel):
+        elif isinstance(obj, RequestModel) or isinstance(obj, InvitationModel) or isinstance(obj, NotificationModel):
             return request.user.is_authenticated and obj.user == request.user
         return False
 
@@ -49,5 +49,7 @@ class OwnProfilePermission(permissions.BasePermission):
                 return self.__check_first_model_object_permission(InvitationModel, request, view)
             elif view.action in ["request_cancel"]:
                 return self.__check_first_model_object_permission(RequestModel, request, view)
+            elif view.action in ["mark_notification_as_read"]:
+                return self.__check_first_model_object_permission(NotificationModel, request, view)
             return False
         return request.user.is_authenticated

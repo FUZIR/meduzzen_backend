@@ -16,7 +16,7 @@ Including another URLconf
 """
 
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import include, path
 
 from core.meduzzen_backend import views
 
@@ -26,5 +26,6 @@ urlpatterns = [
     path("api/", include("core.user.urls")),
     path("auth/", include("djoser.urls.authtoken")),
     path("api/", include("core.company.urls")),
-    path("api/", include("core.quiz.urls"))
+    path("api/", include("core.quiz.urls")),
+    path("api/", include("core.notification.urls"))
 ]

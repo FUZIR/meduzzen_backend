@@ -1,11 +1,11 @@
 from django.db import models
 from django.db.models import TextChoices
+from django.utils.translation import gettext_lazy as _
 from rest_framework.exceptions import ValidationError
 
 from core.company.models import Company
-from core.utils.models import TimeStampedModel
 from core.user.models import CustomUser
-from django.utils.translation import gettext_lazy as _
+from core.utils.models import TimeStampedModel
 
 
 # Create your models here.

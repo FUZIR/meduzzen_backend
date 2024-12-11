@@ -4,6 +4,7 @@ from core.company.models import Company
 from core.user.models import CustomUser
 from core.utils.models import TimeStampedModel
 
+
 class RequestStatus(models.TextChoices):
     PENDING = 'PD', 'Pending'
     ACCEPTED = 'AC', 'Accepted'

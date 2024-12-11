@@ -2,6 +2,7 @@ from rest_framework import serializers
 
 from core.company.serializers import CompanyListSerializer
 from core.user.serializers import UserListSerializer
+
 from .models import RequestModel
 
 

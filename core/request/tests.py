@@ -2,8 +2,8 @@ from django.test import Client, TestCase
 
 from core.company.models import Company
 from core.request.models import RequestModel, RequestStatus
+from core.role.models import RoleModel, UserRoles
 from core.user.models import CustomUser
-from core.role.models import UserRoles, RoleModel
 
 
 class BaseTestCase(TestCase):

@@ -14,5 +14,5 @@ else
     exit 1
 fi
 
-poetry run python -m core.manage runserver 0.0.0.0:8000
+poetry run daphne -b 0.0.0.0 -p 8000 core.meduzzen_backend.asgi:application 
 
