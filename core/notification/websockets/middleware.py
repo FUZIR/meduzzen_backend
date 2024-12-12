@@ -2,6 +2,7 @@ from channels.db import database_sync_to_async
 from channels.middleware import BaseMiddleware
 from django.contrib.auth.models import AnonymousUser
 from rest_framework.authtoken.models import Token
+import urllib.parse
 
 
 class TokenAuthMiddleware(BaseMiddleware):
@@ -17,13 +18,9 @@ class TokenAuthMiddleware(BaseMiddleware):
         super().__init__(inner)
 
     async def __call__(self, scope, receive, send):
-        headers = dict(scope['headers'])
-        token_key = None
-
-        if b'authorization' in headers:
-            auth_header = headers[b'authorization'].decode()
-            if auth_header.startswith('Token '):
-                token_key = auth_header.split('Token ')[1]
+        query_string = scope['query_string'].decode()
+        params = urllib.parse.parse_qs(query_string)
+        token_key = params.get('token', [None])[0]
 
         scope['user'] = await self.get_user(token_key) if token_key else AnonymousUser()
         return await super().__call__(scope, receive, send)

@@ -6,4 +6,4 @@ class QuizConfig(AppConfig):
     name = 'core.quiz'
 
     def ready(self):
-        pass
+        import core.quiz.signals # noqa

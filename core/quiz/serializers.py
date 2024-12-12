@@ -236,3 +236,17 @@ class CompanyUsersWithLastTestSerializer(serializers.ModelSerializer):
             "score",
             "last_time_taken",
         ]
+
+class UserHistorySerializer(serializers.ModelSerializer):
+    score = serializers.FloatField()
+    last_test_time = serializers.DateTimeField()
+    quiz_title = serializers.CharField()
+    class Meta:
+        model = ResultsModel
+        fields = [
+            "id",
+            "quiz_id",
+            "quiz_title",
+            "score",
+            "last_test_time"
+        ]

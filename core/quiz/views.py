@@ -22,7 +22,7 @@ from .serializers import (
     QuizzAverageScoreSerializer,
     RatingListSerializer,
     ResultsSerializer,
-    UserAverageScoreSerializer,
+    UserAverageScoreSerializer, UserHistorySerializer,
 )
 
 
@@ -153,6 +153,16 @@ class QuizViewSet(viewsets.ModelViewSet):
         if not queryset.exists():
             return Response({"detail": _("Quizzes history not found")}, status=HTTP_404_NOT_FOUND)
         serializer = CompanyQuizzHistory(queryset, many=True)
+        return Response(serializer.data, status=HTTP_200_OK)
+
+    @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="user-history")
+    def users_quizzes_history(self, request, *args, **kwargs):
+        queryset = (
+            ResultsModel.objects.filter(user=self.request.user, quiz_status=QuizStatus.COMPLETED).select_related("user")
+            .annotate(last_test_time=F("updated_at"), quiz_title=F("quiz__title")).order_by("-last_test_time"))
+        if not queryset.exists():
+            return Response({"detail": _("Quizzes history not found")}, status=HTTP_404_NOT_FOUND)
+        serializer = UserHistorySerializer(queryset, many=True)
         return Response(serializer.data, status=HTTP_200_OK)
 
     @action(methods=["GET"], permission_classes=[IsAuthenticated], detail=False, url_path="quizzes-average")

@@ -13,6 +13,7 @@ from core.user.permissions import OwnProfilePermission
 class NotificationViewSet(viewsets.ModelViewSet):
     queryset = NotificationModel.objects.all()
     serializer_class = NotificationSerializer
+    pagination_class = None
     def get_queryset(self):
         if self.action == "list":
             return NotificationModel.objects.filter(user=self.request.user)
