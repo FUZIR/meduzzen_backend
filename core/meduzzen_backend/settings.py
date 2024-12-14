@@ -94,6 +94,7 @@ EMAIL_USE_TLS = env("EMAIL_USE_TLS")
 EMAIL_HOST_USER = env("EMAIL_ACCOUNT")
 EMAIL_HOST_PASSWORD = env("EMAIL_PASSWORD")
 
+
 AUTH_USER_MODEL = "user.CustomUser"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
