@@ -86,6 +86,13 @@ DJOSER = {
 CORS_ORIGIN_ALLOW_ALL = env.bool("CORS_ORIGIN_ALLOW_ALL", default=False)
 CORS_ORIGIN_WHITELIST = env.list("CORS_ORIGIN_WHITELIST")
 
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = env("EMAIL_PORT")
+EMAIL_USE_TLS = env("EMAIL_USE_TLS")
+EMAIL_HOST_USER = env("EMAIL_ACCOUNT")
+EMAIL_HOST_PASSWORD = env("EMAIL_PASSWORD")
+
 AUTH_USER_MODEL = "user.CustomUser"
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -139,6 +146,20 @@ DATABASES = {
         "PORT": env("POSTGRES_PORT", default=5432),
     }
 }
+
+CACHES = {
+    'default': {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        'LOCATION': env("REDIS_URL"),
+        'OPTIONS': {
+            'CLIENT_CLASS': 'django_redis.client.DefaultClient',
+        }
+    }
+}
+
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
+
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
