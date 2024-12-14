@@ -55,6 +55,8 @@ jobs:
           ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
           EMAIL_ACCOUNT: ${{ secrets.EMAIL_ACCOUNT }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_PORT: ${{secrets.EMAIL_PORT}}
+          EMAIL_USE_TLS: ${{secrets.EMAIL_USE_TLS}}
           CORS_ORIGIN_ALLOW_ALL: ${{ secrets.CORS_ORIGIN_ALLOW_ALL }}
           CORS_ORIGIN_WHITELIST: ${{ secrets.CORS_ORIGIN_WHITELIST }}
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
@@ -62,7 +64,10 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          REDIS_URL: ${{ secrets.REDIS_URL }}
           POSTGRES_PORT: 5432
+          CELERY_BROKER_URL: ${{secrets.CELERY_BROKER_URL}}
+          CELERY_RESULT_BACKEND: ${{secrets.CELERY_RESULT_BACKEND}}
         run: poetry run python -m core.manage migrate
 
       - name: Run tests
@@ -72,6 +77,8 @@ jobs:
           ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
           EMAIL_ACCOUNT: ${{ secrets.EMAIL_ACCOUNT }}
           EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          EMAIL_PORT: ${{secrets.EMAIL_PORT}}
+          EMAIL_USE_TLS: ${{secrets.EMAIL_USE_TLS}}
           CORS_ORIGIN_ALLOW_ALL: ${{ secrets.CORS_ORIGIN_ALLOW_ALL }}
           CORS_ORIGIN_WHITELIST: ${{ secrets.CORS_ORIGIN_WHITELIST }}
           POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
@@ -79,4 +86,7 @@ jobs:
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{secrets.POSTGRES_HOST}}
           POSTGRES_PORT: 5432
+          REDIS_URL: ${{ secrets.REDIS_URL }}
+          CELERY_BROKER_URL: ${{secrets.CELERY_BROKER_URL}}
+          CELERY_RESULT_BACKEND: ${{secrets.CELERY_RESULT_BACKEND}}
         run: poetry run python -m core.manage test
