@@ -153,15 +153,15 @@ DATABASES = {
 CACHES = {
     'default': {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        'LOCATION': env.cache_url("REDIS_URL"),
+        'LOCATION': env("REDIS_URL"),
         'OPTIONS': {
             'CLIENT_CLASS': 'django_redis.client.DefaultClient',
         }
     }
 }
 
-CELERY_BROKER_URL = env.cache_url("CELERY_BROKER_URL")
-CELERY_RESULT_BACKEND = env.cache_url("CELERY_RESULT_BACKEND")
+CELERY_BROKER_URL = env("CELERY_BROKER_URL")
+CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
