@@ -10,7 +10,7 @@ from core.quiz.models import ResultsModel, QuizStatus
 
 
 def get_users_with_available_quizzes():
-    results = ResultsModel.objects.filter(quiz_status=QuizStatus.COMPLETED).select_related("quiz", "user", "company")
+    results = ResultsModel.objects.filter(quiz_status=QuizStatus.COMPLETED).select_related("quiz", "user")
     queryset = results.annotate(
         days_since_update=ExpressionWrapper((now() - F("updated_at")), output_field=DurationField()),
         required_duration=ExpressionWrapper(F("quiz__frequency") * timedelta(days=1), output_field=DurationField()),
@@ -22,7 +22,6 @@ def get_users_with_available_quizzes():
 
 @shared_task()
 def send_email_with_notification():
-    print("Task send_email_with_notification is running...")
     server = smtplib.SMTP('smtp.gmail.com', 587)
     server.starttls()
     server.login(settings.EMAIL_HOST_USER, settings.EMAIL_HOST_PASSWORD)
