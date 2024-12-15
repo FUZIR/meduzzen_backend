@@ -167,7 +167,7 @@ CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 CELERY_BEAT_SCHEDULE = {
       'send_notification_every_day': {
         'task': 'core.utils.tasks.send_email_with_notification',
-        'schedule': crontab(minute="*/1"),
+        'schedule': crontab(minute=0, hour=0),
         'args': ()
     },
 }
