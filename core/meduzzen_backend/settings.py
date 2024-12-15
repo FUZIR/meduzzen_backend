@@ -14,6 +14,7 @@ import os.path
 from pathlib import Path
 
 import environ
+from celery.schedules import crontab
 from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -163,6 +164,13 @@ CACHES = {
 CELERY_BROKER_URL = env("CELERY_BROKER_URL")
 CELERY_RESULT_BACKEND = env("CELERY_RESULT_BACKEND")
 
+CELERY_BEAT_SCHEDULE = {
+      'send_notification_every_day': {
+        'task': 'core.utils.tasks.send_email_with_notification',
+        'schedule': crontab(minute="*/1"),
+        'args': ()
+    },
+}
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
