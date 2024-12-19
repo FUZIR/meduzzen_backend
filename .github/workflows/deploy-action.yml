@@ -10,31 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v3
+      - name: Checkout code
+        uses: actions/checkout@v3
 
-    - name: Install dos2unix
-      run: sudo apt-get update && sudo apt-get install -y dos2unix
+      - name: Install dos2unix
+        run: sudo apt-get update && sudo apt-get install -y dos2unix
 
-    - name: Create PEM file from GitHub secret
-      run: |
-        echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
-        dos2unix ./quiz-backend.pem
-        chmod 400 ./quiz-backend.pem
+      - name: Create PEM file from GitHub secret
+        run: |
+          echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
+          dos2unix ./quiz-backend.pem
+          chmod 400 ./quiz-backend.pem
 
-    - name: Add EC2 host to known hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H 51.20.42.23 >> ~/.ssh/known_hosts
+      - name: Add EC2 host to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 51.20.42.23 >> ~/.ssh/known_hosts
 
-    - name: Upload project files to EC2
-      run: |
-        scp -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
+      - name: Archive project files
+        run: zip -r project.zip ./
 
-    - name: Rebuild and restart Docker container
-      run: |
-        ssh -i ./quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
-        cd /home/ec2-user/app
-        docker-compose down
-        docker-compose up --build -d
-        EOF
+      - name: Upload ZIP to EC2
+        run: scp -o StrictHostKeyChecking=no -i $(pwd)/quiz-backend.pem project.zip ec2-user@51.20.42.23:/home/ec2-user/
+
+      - name: Extract files on EC2
+        run: |
+          ssh -i $(pwd)/quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
+          unzip -o /home/ec2-user/project.zip -d /home/ec2-user/app
+          cd /home/ec2-user/app
+          docker-compose down
+          docker-compose up --build -d
+          EOF
