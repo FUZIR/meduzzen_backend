@@ -29,7 +29,7 @@ jobs:
 
     - name: Upload project files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
+        scp -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
 
     - name: Rebuild and restart Docker container
       run: |
