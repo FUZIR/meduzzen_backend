@@ -1,0 +1,32 @@
+name: Deploy to ec2
+
+on:
+  push:
+    branches:
+      - "develop"
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Add PEM file
+      run: |
+        mkdir -p ~/.ssh
+        echo "${{ secrets.PEM_FILE }}" > ~/.ssh/quiz-backend.pem
+        chmod 400 ~/.ssh/quiz-backend.pem
+
+    - name: Upload project files to EC2
+      run: |
+        scp -i ~/.ssh/quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/app
+
+    - name: Rebuild and restart Docker container
+      run: |
+        ssh -i ~/.ssh/quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
+        cd /home/ec2-user/app
+        docker-compose down
+        docker-compose up --build
+        EOF
