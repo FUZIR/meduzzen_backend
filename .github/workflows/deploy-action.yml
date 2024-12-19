@@ -21,10 +21,7 @@ jobs:
         echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
         dos2unix ./quiz-backend.pem
         chmod 400 ./quiz-backend.pem
-
-    - name: Print absolute path
-      run: |
-        echo "Full path to quiz-backend.pem: $(pwd)/quiz-backend.pem"
+        ls -l ./quiz-backend.pem
 
     - name: Add EC2 host to known hosts
       run: |
@@ -33,7 +30,7 @@ jobs:
 
     - name: Upload project files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i $(pwd)/quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
+        scp -o StrictHostKeyChecking=no -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
 
     - name: Rebuild and restart Docker container
       run: |
