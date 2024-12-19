@@ -53,8 +53,8 @@ jobs:
           POSTGRES_PORT: 5432
         run: |
           ssh -i $(pwd)/quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
-          unzip -o /home/ec2-user/project.zip -d /home/ec2-user/app
-          cd /home/ec2-user/app
+          unzip -o /home/ec2-user/project.zip -d /home/ec2-user/downloads
+          cd /home/ec2-user/downloads
           cat <<EOT >> .env
           SECRET_KEY=${SECRET_KEY}
           DEBUG=${DEBUG}
