@@ -70,6 +70,6 @@ jobs:
           POSTGRES_HOST=${POSTGRES_HOST}
           POSTGRES_PORT=5432
           EOT
-          sudo docker-compose down || echo "No containers to stop"
-          sudo docker-compose up --build -d || { echo "Docker compose failed"; exit 1; }
+          sudo /usr/local/bin/docker-compose down || echo "No containers to stop"
+          sudo /usr/local/bin/docker-compose up --build -d || { echo "Docker compose failed"; exit 1; }
           EOF
