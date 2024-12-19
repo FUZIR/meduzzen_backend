@@ -1,4 +1,4 @@
-name: Deploy to ec2
+name: Deploy to EC2
 
 on:
   push:
@@ -13,19 +13,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Add PEM file
+    - name: Create PEM file from GitHub secret
       run: |
-        mkdir -p ~/.ssh
-        echo "${{ secrets.PEM_FILE }}" > ~/.ssh/quiz-backend.pem
-        chmod 400 ~/.ssh/quiz-backend.pem
+        echo "${{ secrets.AWS_PEM_KEY }}" > ./quiz-backend.pem
+        chmod 400 ./quiz-backend.pem
 
     - name: Upload project files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i ~/.ssh/quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
+        scp -o StrictHostKeyChecking=no -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
 
     - name: Rebuild and restart Docker container
       run: |
-        ssh -i ~/.ssh/quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
+        ssh -i ./quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
         cd /home/ec2-user/app
         docker-compose down
         docker-compose up --build
