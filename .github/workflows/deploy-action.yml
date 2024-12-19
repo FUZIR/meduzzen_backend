@@ -13,11 +13,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
+    - name: Create PEM file from GitHub secret
+      run: |
+        echo "${{ secrets.AWS_PEM_KEY }}" > ./quiz-backend.pem
+        chmod 400 ./quiz-backend.pem
+
+    - name: Add EC2 host to known hosts
+      run: |
+        mkdir -p ~/.ssh
+        ssh-keyscan -H 51.20.42.23 >> ~/.ssh/known_hosts
+
     - name: Upload project files to EC2
       run: |
-        echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
-        chmod 400 ./quiz-backend.pem
-        scp -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
+        scp -o StrictHostKeyChecking=no -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
 
     - name: Rebuild and restart Docker container
       run: |
