@@ -47,6 +47,9 @@ jobs:
           POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
           POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
           POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          REDIS_PORT: ${{secrets.REDIS_PORT}}
+          REDIS_DATABASES: ${{secrets.REDIS_DATABASES}}
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
           POSTGRES_PORT: 5432
         run: |
           ssh -i $(pwd)/quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
