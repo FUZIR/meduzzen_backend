@@ -21,7 +21,6 @@ jobs:
         echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
         dos2unix ./quiz-backend.pem
         chmod 400 ./quiz-backend.pem
-        ls -l ./quiz-backend.pem
 
     - name: Add EC2 host to known hosts
       run: |
@@ -37,5 +36,5 @@ jobs:
         ssh -i ./quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
         cd /home/ec2-user/app
         docker-compose down
-        docker-compose up --build
+        docker-compose up --build -d
         EOF
