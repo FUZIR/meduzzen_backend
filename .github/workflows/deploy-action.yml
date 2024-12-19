@@ -15,9 +15,8 @@ jobs:
 
     - name: Create PEM file from GitHub secret
       run: |
-        echo "${{ secrets.AWS_PEM_KEY }}" > ./quiz-backend.pem
+        echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
         chmod 400 ./quiz-backend.pem
-        dos2unix ./quiz-backend.pem
 
     - name: Add EC2 host to known hosts
       run: |
