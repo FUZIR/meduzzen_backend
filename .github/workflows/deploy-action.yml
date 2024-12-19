@@ -18,6 +18,10 @@ jobs:
         echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
         chmod 400 ./quiz-backend.pem
 
+    - name: Check if PEM file exists
+      run: |
+        ls -la ./quiz-backend.pem
+
     - name: Add EC2 host to known hosts
       run: |
         mkdir -p ~/.ssh
