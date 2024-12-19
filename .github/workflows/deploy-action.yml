@@ -1,0 +1,76 @@
+name: Deploy to EC2
+
+on:
+  pull_request:
+    branches:
+      - "develop"
+    type: [closed]
+
+jobs:
+  deploy:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Install dos2unix
+        run: sudo apt-get update && sudo apt-get install -y dos2unix
+
+      - name: Create PEM file from GitHub secret
+        run: |
+          echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
+          dos2unix ./quiz-backend.pem
+          chmod 400 ./quiz-backend.pem
+
+      - name: Add EC2 host to known hosts
+        run: |
+          mkdir -p ~/.ssh
+          ssh-keyscan -H 51.20.42.23 >> ~/.ssh/known_hosts
+
+      - name: Archive project files
+        run: zip -r project.zip ./
+
+      - name: Upload ZIP to EC2
+        run: scp -o StrictHostKeyChecking=no -i $(pwd)/quiz-backend.pem project.zip ec2-user@51.20.42.23:/home/ec2-user/
+
+      - name: Extract files on EC2
+        env:
+          SECRET_KEY: ${{ secrets.SECRET_KEY }}
+          DEBUG: ${{ secrets.DEBUG }}
+          ALLOWED_HOSTS: ${{ secrets.ALLOWED_HOSTS }}
+          EMAIL_ACCOUNT: ${{ secrets.EMAIL_ACCOUNT }}
+          EMAIL_PASSWORD: ${{ secrets.EMAIL_PASSWORD }}
+          CORS_ORIGIN_ALLOW_ALL: ${{ secrets.CORS_ORIGIN_ALLOW_ALL }}
+          CORS_ORIGIN_WHITELIST: ${{ secrets.CORS_ORIGIN_WHITELIST }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          POSTGRES_DB: ${{ secrets.POSTGRES_DB }}
+          POSTGRES_USER: ${{ secrets.POSTGRES_USER }}
+          POSTGRES_PASSWORD: ${{ secrets.POSTGRES_PASSWORD }}
+          POSTGRES_HOST: ${{ secrets.POSTGRES_HOST }}
+          REDIS_PORT: ${{secrets.REDIS_PORT}}
+          REDIS_DATABASES: ${{secrets.REDIS_DATABASES}}
+          REDIS_PASSWORD: ${{secrets.REDIS_PASSWORD}}
+          POSTGRES_PORT: 5432
+        run: |
+          ssh -i $(pwd)/quiz-backend.pem -o StrictHostKeyChecking=no ec2-user@51.20.42.23 << EOF
+          unzip -o /home/ec2-user/project.zip -d /home/ec2-user/downloads
+          cd /home/ec2-user/downloads
+          cat <<EOT >> .env
+          SECRET_KEY=${SECRET_KEY}
+          DEBUG=${DEBUG}
+          ALLOWED_HOSTS=${ALLOWED_HOSTS}
+          EMAIL_ACCOUNT=${EMAIL_ACCOUNT}
+          EMAIL_PASSWORD=${EMAIL_PASSWORD}
+          CORS_ORIGIN_ALLOW_ALL=${CORS_ORIGIN_ALLOW_ALL}
+          CORS_ORIGIN_WHITELIST=${CORS_ORIGIN_WHITELIST}
+          DATABASE_URL=${DATABASE_URL}
+          POSTGRES_DB=${POSTGRES_DB}
+          POSTGRES_USER=${POSTGRES_USER}
+          POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+          POSTGRES_HOST=${POSTGRES_HOST}
+          POSTGRES_PORT=5432
+          EOT
+          sudo /usr/local/bin/docker-compose down || echo "No containers to stop"
+          sudo /usr/local/bin/docker-compose up --build -d || { echo "Docker compose failed"; exit 1; }
+          EOF

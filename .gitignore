@@ -166,3 +166,4 @@ redis-config
 redis-data
 app
 *.csv
+*.pem
