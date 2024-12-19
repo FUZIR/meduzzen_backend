@@ -13,23 +13,16 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
 
-    - name: Create PEM file from GitHub secret
-      run: |
-        echo "${{ secrets.PEM_FILE }}" > ./quiz-backend.pem
-        chmod 400 ./quiz-backend.pem
+    - name: Install dos2unix
+      run: sudo apt-get update && sudo apt-get install -y dos2unix
 
-    - name: Print absolute path
-      run: |
-        echo "Full path to quiz-backend.pem: $(pwd)/quiz-backend.pem"
-
-    - name: Add EC2 host to known hosts
-      run: |
-        mkdir -p ~/.ssh
-        ssh-keyscan -H 51.20.42.23 >> ~/.ssh/known_hosts
+    - name: Convert PEM file to Unix format
+      run: dos2unix ./quiz-backend.pem
 
     - name: Upload project files to EC2
       run: |
-        scp -o StrictHostKeyChecking=no -i  /home/runner/work/meduzzen_backend/meduzzen_backend/quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
+        chmod 400 ./quiz-backend.pem
+        scp -i ./quiz-backend.pem -r * ec2-user@51.20.42.23:/home/ec2-user/downloads
 
     - name: Rebuild and restart Docker container
       run: |
